@@ -1,2 +1,2 @@
 # RepoLens
-GitHub repositories summarization tool
+GitHub repositories summarization app. Use RepoLens to better understand a codebase on GitHub.

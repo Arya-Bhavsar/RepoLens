@@ -1,3 +1,6 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Login from './components/Login.jsx'
+
 function App() {
   return (
     <BrowserRouter>

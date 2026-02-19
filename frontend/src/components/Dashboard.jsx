@@ -27,6 +27,8 @@ export default function Dashboard() {
     }, []);
 
     return (
-        <div></div>
+        <div className="min-h-screen flex bg-gray-100 dark:bg-zinc-900">
+            
+        </div>
     )
 }

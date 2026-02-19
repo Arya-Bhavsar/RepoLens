@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '../supabase.js';
 
 export default function Signup() {
     const [firstName, setFirstName] = useState('');
@@ -7,13 +8,39 @@ export default function Signup() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleSubmit = (e) => {
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle signup logic here
+
+        // Create a new auth user
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email,
+            password
+        });
+
+        if (authError) return console.error('Error signing up:', authError.message);
+        
+        const userId = authData.user.id;
+
+        // Insert user data into the 'profiles' table
+        const { error: profileError } = await supabase.from('profiles').insert({
+            id: userId,
+            email,
+            first_name: firstName,
+            last_name: lastName
+        })
+
+        if (profileError) return console.error('Error creating profile:', profileError.message);
+        
+        console.log('User signed up successfully!');
+
+        // Redirect to the login after successful signup
+        navigate('/login');
     }
 
     return (
-        <div className="min h-screen flex justify-center items-center bg-gray-100 dark:bg-zinc-900">
+        <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-zinc-900">
             <div className="bg-white dark:bg-zinc-800 p-12 rounded-lg shadow-lg w-full max-w-md">
                 <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-12">Sign Up</div>
                 <form onSubmit={handleSubmit} className="space-y-7">

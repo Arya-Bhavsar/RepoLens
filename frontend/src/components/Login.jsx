@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase.js';
+import { UserContext } from '../App.jsx';
+import api from '../axios.js';
+
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const { setCurrentUser } = useContext(UserContext);
 
     const navigate = useNavigate();
 
@@ -20,6 +24,10 @@ export default function Login() {
         if (error) return console.error('Error logging in:', error.message);
 
         console.log('User logged in successfully!');
+
+        // Update the current user in the context
+        const res = await api.get('/me');
+        setCurrentUser(res.data);
 
         // Redirect to the dashboard after successful login
         navigate('/dashboard');

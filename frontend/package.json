@@ -10,9 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@supabase/supabase-js": "^2.93.2",
     "@tailwindcss/vite": "^4.1.18",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "dotenv": "^17.2.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

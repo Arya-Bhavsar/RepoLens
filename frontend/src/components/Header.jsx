@@ -2,7 +2,6 @@ import ThemeToggle from "./ThemeToggle";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 import { useContext } from "react";
 import { UserContext } from "../App.jsx";
-import logo from "../assets/colored-logo.svg";
 
 export default function Header() {
     const { currentUser } = useContext(UserContext);

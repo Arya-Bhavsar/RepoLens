@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { requireAuth } from './auth.js';
 import { supabase } from './supabase.js';
+import octokit from './octokit.js';
 
 // Load environment variables from the .env file
 dotenv.config();

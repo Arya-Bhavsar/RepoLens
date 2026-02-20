@@ -1,5 +1,4 @@
 import ThemeToggle from "./ThemeToggle";
-import { UserCircleIcon } from "@heroicons/react/24/solid";
 import { useContext } from "react";
 import { UserContext } from "../App.jsx";
 import { Avatar } from '@heroui/react';

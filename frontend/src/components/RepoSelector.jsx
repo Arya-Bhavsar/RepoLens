@@ -13,7 +13,7 @@ export default function RepoSelector() {
     }
 
     return (
-        <Card variant="transparent" className="w-full items-stretch md:flex-row">
+        <div className="flex flex-row w-full gap-4 pt-4">
             {/* Selector for repositories */}
             <Select variant="secondary" className="w-[256px]" placeholder="Select a repository">
                 <Select.Trigger>
@@ -49,15 +49,15 @@ export default function RepoSelector() {
                     className="flex-1"
                 />
 
-                <Button type="submit" variant="primary" className="hover:bg-blue-600">Add</Button>
+                <Button type="submit" variant="secondary">Add</Button>
             </form>
 
             {/* Button to analyze the current repo */}
-            <Button variant="primary" className="bg-green-600 hover:bg-green-700">Analyze</Button>
+            <Button variant="tertiary" className="text-success">Analyze</Button>
 
             {/* Modal for deleting the current repo */}
             <Modal>
-                <Button slot="close" variant="danger" className="hover:bg-red-600">Delete</Button>
+                <Button slot="close" variant="danger-soft">Delete</Button>
 
                 <Modal.Backdrop>
                     <Modal.Container>
@@ -79,6 +79,6 @@ export default function RepoSelector() {
                     </Modal.Container>
                 </Modal.Backdrop>
             </Modal>
-        </Card>
+        </div>
     )
 }

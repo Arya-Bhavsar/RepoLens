@@ -1,55 +1,29 @@
-import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/react';
-import { ChevronDownIcon, PencilIcon, Square2StackIcon, ArchiveBoxXMarkIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { Button, Dropdown } from '@heroui/react';
+import { ChevronUpDownIcon } from '@heroicons/react/24/solid';
 
 export default function RepoSelector() {
     return (
-        <div className="fixed top-24 w-52 text-right">
-            <Menu>
-                <MenuButton className="inline-flex items-center gap-2 rounded-md bg-gray-800 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:not-data-focus:outline-none data-focus:outline data-focus:outline-white data-hover:bg-gray-700 data-open:bg-gray-700">
-                    Options
-                    <ChevronDownIcon className="size-4 fill-white/60" />
-                </MenuButton>
+        <div className="flex items-center bg-white dark:bg-zinc-800 rounded-lg p-4 border border-zinc-200 dark:border-zinc-700">
+            <Dropdown>
+                <Button className="flex items-center justify-center rounded p-2 bg-white! dark:bg-zinc-900! border border-zinc-200! dark:border-zinc-700! text-gray-800! dark:text-gray-100!">
+                    Select Repo
+                    <ChevronUpDownIcon className="w-5 h-5"/>
+                </Button>
 
-                <MenuItems
-                    transition
-                    anchor="bottom end"
-                    className="w-52 origin-top-right rounded-xl border border-white/5 bg-white/5 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0"
-                >
-                    <MenuItem>
-                        <button className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10">
-                            <PencilIcon className="size-4 fill-white/30" />
-                            Edit
-                            <kbd className="ml-auto hidden font-sans text-xs text-white/50 group-data-focus:inline">⌘E</kbd>
-                        </button>
-                    </MenuItem>
-
-                    <MenuItem>
-                        <button className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10">
-                            <Square2StackIcon className="size-4 fill-white/30" />
-                            Duplicate
-                            <kbd className="ml-auto hidden font-sans text-xs text-white/50 group-data-focus:inline">⌘D</kbd>
-                        </button>
-                    </MenuItem>
-
-                    <div className="my-1 h-px bg-white/5" />
-
-                    <MenuItem>
-                        <button className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10">
-                            <ArchiveBoxXMarkIcon className="size-4 fill-white/30" />
-                            Archive
-                            <kbd className="ml-auto hidden font-sans text-xs text-white/50 group-data-focus:inline">⌘A</kbd>
-                        </button>
-                    </MenuItem>
-
-                    <MenuItem>
-                        <button className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10">
-                            <TrashIcon className="size-4 fill-white/30" />
-                            Delete
-                            <kbd className="ml-auto hidden font-sans text-xs text-white/50 group-data-focus:inline">⌘D</kbd>
-                        </button>
-                    </MenuItem>
-                </MenuItems>
-            </Menu>
+                <Dropdown.Popover className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200! dark:border-zinc-700!">
+                    <Dropdown.Menu>
+                        <Dropdown.Item>
+                            Option 1
+                        </Dropdown.Item>
+                        <Dropdown.Item>
+                            Option 2
+                        </Dropdown.Item>
+                        <Dropdown.Item>
+                            Option 3
+                        </Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown.Popover>
+            </Dropdown>
         </div>
     )
 }

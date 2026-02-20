@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Button, Dropdown, Select, ListBox } from '@heroui/react';
-import { ChevronUpDownIcon } from '@heroicons/react/24/solid';
+import { Select, ListBox } from '@heroui/react';
 
 export default function RepoSelector() {
     const [url, setUrl] = useState('');

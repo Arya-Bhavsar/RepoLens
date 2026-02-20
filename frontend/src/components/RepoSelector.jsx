@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Select, ListBox, Modal, Button, Input } from '@heroui/react';
+import { Select, ListBox, Modal, Button, Input, Card } from '@heroui/react';
 
 export default function RepoSelector() {
     const [url, setUrl] = useState('');
@@ -13,15 +13,15 @@ export default function RepoSelector() {
     }
 
     return (
-        <div className="flex items-center max-w-screen bg-white dark:bg-zinc-800 rounded-3xl p-4 gap-4 border border-zinc-200 dark:border-zinc-700 shadow-sm">
+        <Card variant="transparent" className="w-full items-stretch md:flex-row">
             {/* Selector for repositories */}
-            <Select className="w-[256px]" placeholder="Select a repository">
+            <Select variant="secondary" className="w-[256px]" placeholder="Select a repository">
                 <Select.Trigger>
                     <Select.Value />
                     <Select.Indicator />
                 </Select.Trigger>
 
-                <Select.Popover className="border dark:border-zinc-700">
+                <Select.Popover>
                     <ListBox>
                         <ListBox.Item id="1" textValue="Option 1">
                             Option 1
@@ -45,6 +45,7 @@ export default function RepoSelector() {
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     required
+                    variant="secondary"
                     className="flex-1"
                 />
 
@@ -78,6 +79,6 @@ export default function RepoSelector() {
                     </Modal.Container>
                 </Modal.Backdrop>
             </Modal>
-        </div>
+        </Card>
     )
 }

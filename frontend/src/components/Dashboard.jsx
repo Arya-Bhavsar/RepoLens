@@ -4,7 +4,7 @@ import RepoSelector from "./RepoSelector.jsx";
 export default function Dashboard() {
     
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-zinc-900">
+        <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-zinc-950">
             <Header />
             <div className="p-4">
                 <RepoSelector />

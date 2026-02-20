@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Select, ListBox } from '@heroui/react';
+import { Select, ListBox, Modal, Button, Input } from '@heroui/react';
 
 export default function RepoSelector() {
     const [url, setUrl] = useState('');
@@ -13,15 +13,15 @@ export default function RepoSelector() {
     }
 
     return (
-        <div className="flex items-center max-w-screen bg-white dark:bg-zinc-800 rounded-lg p-4 gap-4 border border-zinc-200 dark:border-zinc-700">
+        <div className="flex items-center max-w-screen bg-white dark:bg-zinc-800 rounded-3xl p-4 gap-4 border border-zinc-200 dark:border-zinc-700 shadow-sm">
             {/* Selector for repositories */}
             <Select className="w-[256px]" placeholder="Select a repository">
-                <Select.Trigger className="flex items-center rounded px-2 py-1.5 bg-gray-50! dark:bg-zinc-900! border border-zinc-200! dark:border-zinc-700!">
+                <Select.Trigger>
                     <Select.Value />
                     <Select.Indicator />
                 </Select.Trigger>
 
-                <Select.Popover className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200! dark:border-zinc-700!">
+                <Select.Popover className="border dark:border-zinc-700">
                     <ListBox>
                         <ListBox.Item id="1" textValue="Option 1">
                             Option 1
@@ -38,27 +38,46 @@ export default function RepoSelector() {
 
             {/* Form to enter a github repo url */}
             <form onSubmit={handleSubmit} className="flex items-center justify-center gap-4 flex-1">
-                <input 
+                <Input
+                    aria-label="Name"
                     type="url" 
                     placeholder="Enter a GitHub repo URL"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     required
-                    className="flex-1 px-3 py-1.75 text-sm shadow border border-zinc-200! dark:border-zinc-700! bg-gray-50! dark:bg-zinc-900! text-gray-900 dark:text-gray-100 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1"
                 />
 
-                <button type="submit" className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1.75 rounded transition-colors duration-200">Add</button>
+                <Button type="submit" variant="primary" className="hover:bg-blue-600">Add</Button>
             </form>
 
             {/* Button to analyze the current repo */}
-            <button className="cursor-pointer bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1.75 rounded transition-colors duration-200">
-                Analyze
-            </button>
+            <Button variant="primary" className="bg-green-600 hover:bg-green-700">Analyze</Button>
 
-            {/* Button to delete the current repo */}
-            <button className="cursor-pointer bg-red-500 hover:bg-red-700 text-white text-sm px-3 py-1.75 rounded transition-colors duration-200">
-                Delete
-            </button>
+            {/* Modal for deleting the current repo */}
+            <Modal>
+                <Button slot="close" variant="danger" className="hover:bg-red-600">Delete</Button>
+
+                <Modal.Backdrop>
+                    <Modal.Container>
+                        <Modal.Dialog>
+                            <Modal.CloseTrigger />
+                            <Modal.Header>
+                                <Modal.Heading>Confirm Delete</Modal.Heading>
+                            </Modal.Header>
+
+                            <Modal.Body>
+                                Are you sure you want to delete this repository?
+                            </Modal.Body>
+
+                            <Modal.Footer>
+                                <Button slot="close" variant="tertiary">Cancel</Button>
+                                <Button slot="close" variant="danger" className="hover:bg-red-600">Confirm</Button>
+                            </Modal.Footer>
+                        </Modal.Dialog>
+                    </Modal.Container>
+                </Modal.Backdrop>
+            </Modal>
         </div>
     )
 }

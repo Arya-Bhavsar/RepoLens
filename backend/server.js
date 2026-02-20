@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { requireAuth } from './auth.js';
 import { supabase } from './supabase.js';
-import e from 'express';
 
 // Load environment variables from the .env file
 dotenv.config();

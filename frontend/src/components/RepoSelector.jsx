@@ -32,7 +32,15 @@ export default function RepoSelector(props) {
         } catch (err) {
             console.error('Error fetching repository data:', err);
         }
-    }
+    };
+
+    // Function to delete the current repository
+    const deleteRepo = () => {
+        // For now, just clear the selected repo and repo names. Later, we can also add functionality to delete the repo from the backend and database.
+        setRepoNames(prev => prev.filter(name => name !== selectedRepo));
+        setSelectedRepo('');
+        props.updateCurrentRepo('', '');
+    };
 
     return (
         <div className="flex flex-row w-full gap-4 pt-4">
@@ -103,7 +111,14 @@ export default function RepoSelector(props) {
 
                             <Modal.Footer>
                                 <Button slot="close" variant="tertiary">Cancel</Button>
-                                <Button slot="close" variant="danger" className="hover:bg-red-600">Confirm</Button>
+                                <Button
+                                    slot="close"
+                                    variant="danger"
+                                    className="hover:bg-red-600"
+                                    onPress={deleteRepo}
+                                >
+                                    Confirm
+                                </Button>
                             </Modal.Footer>
                         </Modal.Dialog>
                     </Modal.Container>

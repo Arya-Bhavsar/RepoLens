@@ -10,7 +10,11 @@ export default function FileTree(props) {
     // Fetch the branches of the current repository whenever the owner or repo changes
     useEffect(() => {
         const fetchBranches = async () => {
-            if (!props.owner || !props.repo) return;
+            if (!props.owner || !props.repo) {
+                setBranches([]);
+                setSelectedBranch('');
+                return;
+            }
 
             // Fetch the file tree for the current repository and branch from the backend
             try {

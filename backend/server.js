@@ -43,8 +43,7 @@ app.get('/repo', requireAuth, async (req, res) => {
     try {
         const { data } = await octokit.repos.get({ owner, repo });
         res.json({
-            name: data.name,
-            description: data.description,
+            full_name: data.full_name,
             default_branch: data.default_branch
         })
     } catch (err) {
@@ -54,7 +53,7 @@ app.get('/repo', requireAuth, async (req, res) => {
 });
 
 // Route to get all the branches of a repository from GitHub
-app.get('repo/branches', requireAuth, async (req, res) => {
+app.get('/repo/branches', requireAuth, async (req, res) => {
     const { owner , repo } = req.query;
     try {
         const { data } = await octokit.repos.listBranches({ owner, repo });

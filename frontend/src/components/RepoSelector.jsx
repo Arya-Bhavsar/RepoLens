@@ -1,37 +1,67 @@
 "use client";
 
 import { useState } from 'react';
-import { Select, ListBox, Modal, Button, Input, Card } from '@heroui/react';
+import { Select, ListBox, Modal, Button, Input, Label } from '@heroui/react';
+import api from '../axios.js';
 
-export default function RepoSelector() {
+export default function RepoSelector(props) {
     const [url, setUrl] = useState('');
+    const [repoNames, setRepoNames] = useState([]);
+    const [selectedRepo, setSelectedRepo] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Handle form submission logic here
+        // Extract the owner and repo name from the URL using regex () captures the value in a group
+        const match = url.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+        if (!match) return alert("Invalid GitHub repository URL.");
+
+        // Pass the current owner and repo to the parent component (Dashboard) using the updateCurrentRepo function
+        props.updateCurrentRepo(match[1], match[2]);
+
+        // Fetch the repository data (full_name and default_branch) from the backend
+        // USE DEFAULT BRANCH TO INITIALIZE THE FILE TREE IN THE DASHBOARD -- LATER
+        try {
+            const res = await api.get('/repo', {
+                params: { owner: match[1], repo: match[2] }
+            });
+            console.log('Repository data:', res.data);
+            setRepoNames(prev => [...prev, res.data.full_name]);
+            setSelectedRepo(res.data.full_name);
+
+        } catch (err) {
+            console.error('Error fetching repository data:', err);
+        }
     }
 
     return (
         <div className="flex flex-row w-full gap-4 pt-4">
             {/* Selector for repositories */}
-            <Select variant="secondary" className="w-[256px]" placeholder="Select a repository">
+            <Select
+                variant="secondary"
+                className="w-[256px]"
+                placeholder="Select a repository"
+                value={selectedRepo}
+                onChange={value => {
+                    setSelectedRepo(value);
+                    const [owner, repo] = value.split('/');
+                    props.updateCurrentRepo(owner, repo);
+                }}
+            >
+                <Label /> {/* To avoid warnings in the console */}
                 <Select.Trigger>
                     <Select.Value />
                     <Select.Indicator />
                 </Select.Trigger>
 
-                <Select.Popover>
+                <Select.Popover className="dark:bg-zinc-800!">
                     <ListBox>
-                        <ListBox.Item id="1" textValue="Option 1">
-                            Option 1
-                        </ListBox.Item>
-                        <ListBox.Item id="2" textValue="Option 2">
-                            Option 2
-                        </ListBox.Item>
-                        <ListBox.Item id="3" textValue="Option 3">
-                            Option 3
-                        </ListBox.Item>
+                        {repoNames.map((repo, index) => (
+                            <ListBox.Item key={index} id={repo} textValue={repo}>
+                                {repo}
+                                <ListBox.ItemIndicator />
+                            </ListBox.Item>
+                        ))}
                     </ListBox>
                 </Select.Popover>
             </Select>
@@ -39,7 +69,7 @@ export default function RepoSelector() {
             {/* Form to enter a github repo url */}
             <form onSubmit={handleSubmit} className="flex items-center justify-center gap-4 flex-1">
                 <Input
-                    aria-label="Name"
+                    aria-label="GitHub Repository URL"
                     type="url" 
                     placeholder="Enter a GitHub repo URL"
                     value={url}

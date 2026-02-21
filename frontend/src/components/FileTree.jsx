@@ -61,8 +61,8 @@ export default function FileTree(props) {
     }, [selectedBranch]);
 
     return (
-        <div className="w-[256px] min-h-screen rounded-lg p-4 bg-gray-100 dark:bg-zinc-900">
-            <header className="flex flex-col w-full gap-2">
+        <div className="w-[256px] min-h-screen rounded-lg py-4 bg-gray-100 dark:bg-zinc-900">
+            <header className="flex flex-col px-4 w-full gap-2">
                 {/* Title */}
                 <div className="flex flex-row items-center gap-2">
                     <DocumentDuplicateIcon className="w-5 h-5 text-primary" />
@@ -105,7 +105,10 @@ export default function FileTree(props) {
             {/* File Tree */}
             <div>
                 {fileTree && fileTree.map((node, index) => (
-                    <FileNode key={`${node.sha}-${index}`} node={node} depth={0} />
+                    <FileNode
+                        key={`${node.sha}-${index}`} 
+                        node={node}
+                    />
                 ))}
             </div>
         </div>

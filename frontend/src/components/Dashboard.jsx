@@ -15,13 +15,11 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-white dark:bg-zinc-950">
+        <div className="h-screen max-h-screen flex flex-col bg-white dark:bg-zinc-950">
             <Header />
-            <div className="flex flex-col min-h-screen px-8 py-4 gap-8">
+            <div className="flex flex-col flex-1 p-4 gap-4 overflow-hidden">
                 <RepoSelector updateCurrentRepo={updateCurrentRepo} />
-                <div className="flex flex-row">
-                    <FileTree owner={currentOwner} repo={currentRepo} />
-                </div>
+                <FileTree owner={currentOwner} repo={currentRepo} />
             </div>
         </div>
     )

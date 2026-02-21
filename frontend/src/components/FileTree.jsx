@@ -67,7 +67,7 @@ export default function FileTree(props) {
     }, [selectedBranch]);
 
     return (
-        <div className="w-[256px] min-h-screen rounded-lg py-4 bg-gray-100 dark:bg-zinc-900">
+        <div className="flex flex-col w-[256px] h-full rounded-lg py-4 bg-gray-100 dark:bg-zinc-900 overflow-hidden">
             <header className="flex flex-col px-4 w-full gap-2">
                 {/* Title */}
                 <div className="flex flex-row items-center gap-2">
@@ -109,7 +109,7 @@ export default function FileTree(props) {
             <Separator className="my-4 bg-gray-300 dark:bg-zinc-700" />
 
             {/* File Tree */}
-            <div>
+            <div className="flex flex-col grow overflow-y-auto min-h-0">
                 {fileTree && fileTree.map((node, index) => (
                     <FileNode
                         key={`${node.sha}-${index}`} 

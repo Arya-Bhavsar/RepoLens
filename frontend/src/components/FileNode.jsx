@@ -20,7 +20,7 @@ export default function FileNode(props) {
     } else if (props.node.type === "tree") {
         // This is a directory
         return (
-            <div className="flex flex-col py-1">
+            <div className="flex flex-col">
                 <div className="ml-2 mr-2 text-sm hover:bg-gray-200 dark:hover:bg-zinc-700 rounded-lg">
                     <div className="flex flex-row ml-2 items-center gap-2 cursor-pointer py-1" onClick={toggleOpen}>
                         <FolderIcon className="w-4 h-4 text-gray-500" />

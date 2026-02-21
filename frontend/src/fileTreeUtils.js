@@ -1,3 +1,16 @@
+// Helper function to sort the tree (folders and then files)
+function sortTree(nodes) {
+    nodes.sort((a, b) => {
+        if (a.type === b.type) return a.name.localeCompare(b.name);
+        return a.type === "tree" ? -1 : 1
+    });
+
+    nodes.forEach(node => {
+        if (node.children?.length) sortTree(node.children)
+    });
+    return nodes
+}
+
 // Utility function to build a tree structure from a flat list of file paths
 export default function buildTree(files) {
     const root = { name: "", type: "tree", children: [] };
@@ -23,5 +36,5 @@ export default function buildTree(files) {
         });
     });
 
-    return root.children; // Return the children of the root node, which is the actual file tree
+    return sortTree(root.children); // Return the children of the root node, which is the actual file tree
 }

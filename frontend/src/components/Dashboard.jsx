@@ -7,6 +7,7 @@ export default function Dashboard() {
     // List of {full_name, default_branch} of the repositories added by the user
     const [currentOwner, setCurrentOwner] = useState('');
     const [currentRepo, setCurrentRepo] = useState('');
+    const [currentFile, setCurrentFile] = useState('');
 
     // Function to pass currentOwner and currentRepo to FileTree component
     const updateCurrentRepo = (owner, repo) => {
@@ -14,12 +15,17 @@ export default function Dashboard() {
         setCurrentRepo(repo);
     };
 
+    const updateCurrentFile = (file) => {
+        console.log("Selected file:", file);
+        setCurrentFile(file);
+    };
+
     return (
         <div className="h-screen max-h-screen flex flex-col bg-white dark:bg-zinc-950">
             <Header />
             <div className="flex flex-col flex-1 p-4 gap-4 overflow-hidden">
                 <RepoSelector updateCurrentRepo={updateCurrentRepo} />
-                <FileTree owner={currentOwner} repo={currentRepo} />
+                <FileTree owner={currentOwner} repo={currentRepo} updateCurrentFile={updateCurrentFile} />
             </div>
         </div>
     )

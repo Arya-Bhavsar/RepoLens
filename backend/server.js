@@ -38,7 +38,22 @@ app.get('/me', requireAuth, async (req, res) => {
     }
 });
 
-// Route to fetch repository data (with default branch) from GitHub
+// Route to get repositories from Supabase
+app.get('/repositories', requireAuth, async (req, res) => {
+    const { data, error } = await supabase
+        .from("repositories")
+        .select("owner, name, default_branch")
+        .eq("user_id", req.user.id);
+    
+    if (error) return res.status(500).json({ error: error.message })
+
+    res.json(data.map(repo => ({
+        full_name: `${repo.owner}/${repo.name}`,
+        default_branch: repo.default_branch
+    })));
+});
+
+// Route to add repository from GitHub
 app.post('/repositories', requireAuth, async (req, res) => {
     const { owner , repo } = req.body;
     try {

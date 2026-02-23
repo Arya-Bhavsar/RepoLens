@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Select, ListBox, Modal, Button, Input, Label } from '@heroui/react';
 import api from '../axios.js';
 
@@ -8,6 +8,19 @@ export default function RepoSelector(props) {
     const [url, setUrl] = useState('');
     const [repoNames, setRepoNames] = useState([]);
     const [selectedRepo, setSelectedRepo] = useState('');
+
+    useEffect(() => {
+        const fetchRepos = async () => {
+            try {
+                const res = await api.get("/repositories");
+                setRepoNames(res.data.map(repo => repo.full_name));
+            } catch (err) {
+                console.log("Error fetching repositories:", err);
+            }
+        }
+
+        fetchRepos();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

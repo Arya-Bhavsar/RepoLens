@@ -86,6 +86,20 @@ app.post('/repositories', requireAuth, async (req, res) => {
     }
 });
 
+// Route to delete a repository
+app.delete("/repositories", requireAuth, async (req, res) => {
+    const { owner, name } = req.query;
+    
+    const response = await supabase
+        .from("repositories")
+        .delete()
+        .eq("owner", owner)
+        .eq("name", name)
+        .eq("user_id", req.user.id)
+    
+    res.json(response);
+});
+
 // Route to get all the branches of a repository from GitHub
 app.get('/repo/branches', requireAuth, async (req, res) => {
     const { owner , repo } = req.query;

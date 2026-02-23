@@ -9,6 +9,7 @@ export default function RepoSelector(props) {
     const [repoNames, setRepoNames] = useState([]);
     const [selectedRepo, setSelectedRepo] = useState('');
 
+    // Gets all the saved repositories from Supabase on mount
     useEffect(() => {
         const fetchRepos = async () => {
             try {
@@ -46,9 +47,10 @@ export default function RepoSelector(props) {
     };
 
     // Function to delete the current repository
-    const deleteRepo = () => {
-        // For now, just clear the selected repo and repo names. Later, we can also add functionality to delete the repo from the backend and database.
+    const deleteRepo = async () => {
         setRepoNames(prev => prev.filter(name => name !== selectedRepo));
+        const res = await api.delete("/repositories");
+        console.log(res);
         setSelectedRepo('');
         props.updateCurrentRepo('', '');
     };

@@ -12,6 +12,7 @@ const app = express();
 
 // Middleware setup
 app.use(cors());
+app.use(express.json())
 
 // Route to get user profile
 app.get('/me', requireAuth, async (req, res) => {
@@ -38,17 +39,35 @@ app.get('/me', requireAuth, async (req, res) => {
 });
 
 // Route to fetch repository data (with default branch) from GitHub
-app.get('/repo', requireAuth, async (req, res) => {
-    const { owner , repo } = req.query;
+app.post('/repositories', requireAuth, async (req, res) => {
+    const { owner , repo } = req.body;
     try {
+        // Get the repo from GitHub
         const { data } = await octokit.repos.get({ owner, repo });
+        
+        // Add the repo to Supabase
+        const { error } = await supabase
+            .from("repositories")
+            .insert({
+                owner: owner,
+                name: repo,
+                default_branch: data.default_branch,
+                user_id: req.user.id
+            });
+
+        if (error) {
+            console.log("Error adding reposiroty to Supabase:", error);
+            return res.status(500).json({ error: 'Failed to add repository data' });
+        }
+        
+        // Return the repo full name and default branch
         res.json({
             full_name: data.full_name,
             default_branch: data.default_branch
         })
     } catch (err) {
         console.error('Error fetching repository data:', err);
-        res.status(500).json({ error: 'Failed to fetch repository data' });
+        return res.status(500).json({ error: 'Failed to fetch repository data' });
     }
 });
 

@@ -88,13 +88,13 @@ export default function FileTree(props) {
                     </Select.Trigger>
     
                     <Select.Popover className="dark:bg-zinc-800!">
-                        <ListBox>
-                            {branches.map((branch, index) => (
-                                <ListBox.Item key={index} id={branch} textValue={branch}>
-                                    {branch}
+                        <ListBox items={branches.map(branch => ({ id: branch, name: branch }))}>
+                            {(item) => (
+                                <ListBox.Item id={item.id} textValue={item.name}>
+                                    {item.name}
                                     <ListBox.ItemIndicator />
                                 </ListBox.Item>
-                            ))}
+                            )}
                         </ListBox>
                     </Select.Popover>
                 </Select>

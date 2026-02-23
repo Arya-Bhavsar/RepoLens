@@ -22,9 +22,7 @@ export default function RepoSelector(props) {
         // Fetch the repository data (full_name and default_branch) from the backend
         // USE DEFAULT BRANCH TO INITIALIZE THE FILE TREE IN THE DASHBOARD -- LATER
         try {
-            const res = await api.get('/repo', {
-                params: { owner: match[1], repo: match[2] }
-            });
+            const res = await api.post('/repositories', { owner: match[1], repo: match[2] });
             console.log('Repository data:', res.data);
             setRepoNames(prev => [...prev, res.data.full_name]);
             setSelectedRepo(res.data.full_name);
@@ -63,13 +61,13 @@ export default function RepoSelector(props) {
                 </Select.Trigger>
 
                 <Select.Popover className="dark:bg-zinc-800!">
-                    <ListBox>
-                        {repoNames.map((repo, index) => (
-                            <ListBox.Item key={index} id={repo} textValue={repo}>
-                                {repo}
+                    <ListBox items={repoNames.map(repo => ({ id: repo, name: repo }))}>
+                        {(item) => (
+                            <ListBox.Item id={item.id} textValue={item.name}>
+                                {item.name}
                                 <ListBox.ItemIndicator />
                             </ListBox.Item>
-                        ))}
+                        )}
                     </ListBox>
                 </Select.Popover>
             </Select>

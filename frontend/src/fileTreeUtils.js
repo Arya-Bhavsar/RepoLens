@@ -27,6 +27,7 @@ export default function buildTree(files) {
             if (!childNode) {
                 childNode = {
                     name: part,
+                    filePath: file.path, // Wrong for folders, but only need this for files
                     type: index - parts.length + 1 === 0 ? file.type : "tree",
                     children: []
                 };

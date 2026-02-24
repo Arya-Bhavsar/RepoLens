@@ -133,7 +133,7 @@ app.get('/repo/tree', requireAuth, async (req, res) => {
 app.get('/repo/file', requireAuth, async (req, res) => {
     const { owner, repo, path, branch } = req.query;
     try {
-        const [ data ] = await octokit.repos.getContent({
+        const { data } = await octokit.repos.getContent({
             owner,
             repo,
             path,

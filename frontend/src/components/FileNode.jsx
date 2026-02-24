@@ -11,7 +11,7 @@ export default function FileNode(props) {
         // This is a file
         return (
             <div className="ml-2 mr-2 text-sm hover:bg-gray-200 dark:hover:bg-zinc-700 rounded-lg">
-                <div className="flex flex-row ml-2 items-center gap-2 cursor-pointer py-1" onClick={() => props.updateSelectedFile(props.node.name)}>
+                <div className="flex flex-row ml-2 items-center gap-2 cursor-pointer py-1" onClick={() => props.updateSelectedFile(props.node.filePath)}>
                     <DocumentIcon className="w-4 h-4 text-gray-500" />
                     {props.node.name}
                 </div>

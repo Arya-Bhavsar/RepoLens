@@ -10,7 +10,10 @@ export default function FileTree(props) {
     const [selectedBranch, setSelectedBranch] = useState('');
     const [fileTree, setFileTree] = useState(null);
 
-    const updateSelectedFile = (selectedFile) => props.updateCurrentFile(selectedFile);
+    const updateSelectedFile = (selectedFile) => {
+        props.updateCurrentFile(selectedFile);
+        props.updateCurrentBranch(selectedBranch);
+    };
 
     // Fetch the branches of the current repository whenever the owner or repo changes
     useEffect(() => {

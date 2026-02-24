@@ -6,15 +6,15 @@ import api from '../axios.js';
 
 export default function RepoSelector(props) {
     const [url, setUrl] = useState('');
-    const [repoNames, setRepoNames] = useState([]);
-    const [selectedRepo, setSelectedRepo] = useState('');
+    const [repos, setRepos] = useState([]); // List of {full_name, default_branch}
+    const [selectedRepo, setSelectedRepo] = useState(''); // Full name (owner/name)
 
     // Gets all the saved repositories from Supabase on mount
     useEffect(() => {
         const fetchRepos = async () => {
             try {
                 const res = await api.get("/repositories");
-                setRepoNames(res.data.map(repo => repo.full_name));
+                setRepos(res.data);
             } catch (err) {
                 console.log("Error fetching repositories:", err);
             }
@@ -30,17 +30,14 @@ export default function RepoSelector(props) {
         const match = url.match(/github\.com\/([^\/]+)\/([^\/]+)/);
         if (!match) return alert("Invalid GitHub repository URL.");
 
-        // Pass the current owner and repo to the parent component (Dashboard) using the updateCurrentRepo function
-        props.updateCurrentRepo(match[1], match[2]);
-
         // Fetch the repository data (full_name and default_branch) from the backend
-        // USE DEFAULT BRANCH TO INITIALIZE THE FILE TREE IN THE DASHBOARD -- LATER
         try {
             const res = await api.post('/repositories', { owner: match[1], repo: match[2] });
             console.log('Repository data:', res.data);
-            setRepoNames(prev => [...prev, res.data.full_name]);
+            setRepos(prev => [...prev, res.data]);
             setSelectedRepo(res.data.full_name);
-
+            // Pass the current owner, repo, default_branch to the parent component (Dashboard) using the updateCurrentRepo function
+            props.updateCurrentRepo(match[1], match[2], res.data.default_branch);
         } catch (err) {
             console.error('Error fetching repository data:', err);
         }
@@ -48,11 +45,11 @@ export default function RepoSelector(props) {
 
     // Function to delete the current repository
     const deleteRepo = async () => {
-        setRepoNames(prev => prev.filter(name => name !== selectedRepo));
+        setRepos(prev => prev.filter(repo => repo.full_name !== selectedRepo));
         const res = await api.delete("/repositories");
         console.log(res);
         setSelectedRepo('');
-        props.updateCurrentRepo('', '');
+        props.updateCurrentRepo('', '', '');
     };
 
     return (
@@ -66,7 +63,8 @@ export default function RepoSelector(props) {
                 onChange={value => {
                     setSelectedRepo(value);
                     const [owner, repo] = value.split('/');
-                    props.updateCurrentRepo(owner, repo);
+                    const selected = repos.find(r => r.full_name === value);
+                    props.updateCurrentRepo(owner, repo, selected.default_branch);
                 }}
             >
                 <Label /> {/* To avoid warnings in the console */}
@@ -76,7 +74,7 @@ export default function RepoSelector(props) {
                 </Select.Trigger>
 
                 <Select.Popover className="dark:bg-zinc-800!">
-                    <ListBox items={repoNames.map(repo => ({ id: repo, name: repo }))}>
+                    <ListBox items={repos.map(repo => ({ id: repo.full_name, name: repo.full_name }))}>
                         {(item) => (
                             <ListBox.Item id={item.id} textValue={item.name}>
                                 {item.name}

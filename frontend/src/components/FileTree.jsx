@@ -29,13 +29,15 @@ export default function FileTree(props) {
                 });
                 console.log('Branches:', res.data);
                 setBranches(res.data);
+                console.log(props.defaultBranch);
+                setSelectedBranch(props.defaultBranch);
             } catch (err) {
                 console.error('Error fetching repository branches:', err);
             }
         }
 
         fetchBranches();
-    }, [props.owner, props.repo]);
+    }, [props.owner, props.repo, props.defaultBranch]);
 
     // Fetch the file tree for the current repository and branch whenever the selected branch changes
     useEffect(() => {
@@ -60,7 +62,7 @@ export default function FileTree(props) {
         };
 
         fetchFileTree();
-    }, [selectedBranch]);
+    }, [selectedBranch, props.owner, props.repo]);
 
     return (
         <div className="flex flex-col w-[256px] h-full rounded-lg py-4 bg-gray-100 dark:bg-zinc-900 overflow-hidden">

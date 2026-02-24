@@ -8,11 +8,13 @@ export default function Dashboard() {
     const [currentOwner, setCurrentOwner] = useState('');
     const [currentRepo, setCurrentRepo] = useState('');
     const [currentFile, setCurrentFile] = useState('');
+    const [currentDefaultBranch, setCurrentDefaultBranch] = useState('');
 
     // Function to pass currentOwner and currentRepo to FileTree component
-    const updateCurrentRepo = (owner, repo) => {
+    const updateCurrentRepo = (owner, repo, defaultBranch) => {
         setCurrentOwner(owner);
         setCurrentRepo(repo);
+        setCurrentDefaultBranch(defaultBranch);
     };
 
     const updateCurrentFile = (file) => {
@@ -25,7 +27,12 @@ export default function Dashboard() {
             <Header />
             <div className="flex flex-col flex-1 p-4 gap-4 overflow-hidden">
                 <RepoSelector updateCurrentRepo={updateCurrentRepo} />
-                <FileTree owner={currentOwner} repo={currentRepo} updateCurrentFile={updateCurrentFile} />
+                <FileTree
+                    owner={currentOwner}
+                    repo={currentRepo}
+                    defaultBranch={currentDefaultBranch}
+                    updateCurrentFile={updateCurrentFile}
+                />
             </div>
         </div>
     )

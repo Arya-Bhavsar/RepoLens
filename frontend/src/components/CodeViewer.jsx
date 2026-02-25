@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import api from "../axios";
 import { ShikiHighlighter } from "react-shiki";
+import { useTheme } from "../ThemeContext";
 
 export default function CodeViewer(props) {
     const [code, setCode] = useState('');
     const [fileExtension, setFileExtension] = useState('');
+
+    const { darkMode } = useTheme();
 
     // Get the file content
     useEffect(() => {
@@ -42,7 +45,7 @@ export default function CodeViewer(props) {
         <div className="code-viewer flex-1 h-full overflow-auto rounded-lg text-[12px]">
             {code && <ShikiHighlighter
                 language={fileExtension}
-                theme="dark-plus"
+                theme={darkMode ? "dark-plus" : "light-plus"}
                 showLineNumbers
             >
                 {code}

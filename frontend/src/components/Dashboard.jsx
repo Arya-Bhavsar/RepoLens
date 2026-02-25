@@ -17,6 +17,8 @@ export default function Dashboard() {
         setCurrentOwner(owner);
         setCurrentRepo(repo);
         setCurrentDefaultBranch(defaultBranch);
+        setCurrentFile("");
+        setCurrentBranch("");
     };
 
     const updateCurrentFile = (file) => {

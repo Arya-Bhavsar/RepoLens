@@ -32,7 +32,6 @@ export default function FileTree(props) {
                 });
                 console.log('Branches:', res.data);
                 setBranches(res.data);
-                console.log(props.defaultBranch);
                 setSelectedBranch(props.defaultBranch);
             } catch (err) {
                 console.error('Error fetching repository branches:', err);
@@ -51,8 +50,6 @@ export default function FileTree(props) {
                 const res = await api.get('/repo/tree', {
                     params: { owner: props.owner, repo: props.repo, branch: selectedBranch }
                 });
-                console.log('File tree:', res.data);
-
                 const files = res.data;
                 // Convert the flat list of files and directories into a nested structure
                 const tree = buildTree(files);

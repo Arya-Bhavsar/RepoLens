@@ -42,7 +42,7 @@ export default function CodeViewer(props) {
     }, [props.file, props.branch]);
     
     return (
-        <div className="code-viewer flex-1 h-full overflow-auto rounded-lg text-[12px]">
+        <div className={`code-viewer flex-1 h-full overflow-auto rounded-lg text-[12px] ${darkMode ? "[&_pre]:bg-zinc-900!" : "[&_pre]:bg-zinc-50!"}`}>
             {code && <ShikiHighlighter
                 language={fileExtension}
                 theme={darkMode ? "dark-plus" : "light-plus"}

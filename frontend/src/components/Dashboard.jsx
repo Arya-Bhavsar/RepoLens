@@ -1,8 +1,9 @@
 import Header from "./Header.jsx";
 import RepoSelector from "./RepoSelector.jsx";
 import FileTree from "./FileTree.jsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CodeViewer from "./CodeViewer.jsx";
+import api from "../axios";
 
 export default function Dashboard() {
     // List of {full_name, default_branch} of the repositories added by the user
@@ -11,6 +12,20 @@ export default function Dashboard() {
     const [currentFile, setCurrentFile] = useState('');
     const [currentDefaultBranch, setCurrentDefaultBranch] = useState('');
     const [currentBranch, setCurrentBranch] = useState('');
+
+    // To test the Gemini client route -- REMOVE LATER
+    useEffect(() => {
+        const testGemini = async () => {
+            try {
+                const res = await api.get('/gemini');
+                console.log(res.data.reply);
+            } catch (err) {
+                console.error("Error with Gemini:", err);
+            }
+        };
+
+        testGemini();
+    }, []);
 
     // Function to pass currentOwner and currentRepo to FileTree component
     const updateCurrentRepo = (owner, repo, defaultBranch) => {

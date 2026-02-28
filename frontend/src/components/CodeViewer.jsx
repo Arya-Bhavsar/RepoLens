@@ -51,5 +51,5 @@ export default function CodeViewer(props) {
                 {code}
             </ShikiHighlighter>}
         </div>
-)
+    )
 }

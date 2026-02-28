@@ -1,7 +1,7 @@
 import { Octokit } from "@octokit/rest";
 import dotenv from 'dotenv';
 
-// Load environment variables from the .env file
+// Load environment variables
 dotenv.config();
 
 // Initialize Octokit with authentication

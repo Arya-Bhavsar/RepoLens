@@ -25,7 +25,7 @@ export default function ChatWindow() {
                     onKeyDown={handleKeyDown}
                     variant="secondary"
                 />
-                <p className="text-xs text-center text-zinc-400 mt-1 px-1">Ask anything about the repository or the individual files</p>
+                <p className="text-xs text-center text-zinc-400 mt-1 px-1">Ask about a repository or specific files by tagging them (@filename)</p>
             </div>
         </div>
     )

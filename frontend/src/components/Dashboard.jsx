@@ -14,20 +14,6 @@ export default function Dashboard() {
     const [currentDefaultBranch, setCurrentDefaultBranch] = useState('');
     const [currentBranch, setCurrentBranch] = useState('');
 
-    // To test the Gemini client route -- REMOVE LATER
-    useEffect(() => {
-        const testGemini = async () => {
-            try {
-                const res = await api.get('/gemini');
-                console.log(res.data.reply);
-            } catch (err) {
-                console.error("Error with Gemini:", err);
-            }
-        };
-
-        testGemini();
-    }, []);
-
     // Function to pass currentOwner and currentRepo to FileTree component
     const updateCurrentRepo = (owner, repo, defaultBranch) => {
         setCurrentOwner(owner);

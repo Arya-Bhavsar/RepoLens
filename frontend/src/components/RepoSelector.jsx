@@ -52,6 +52,16 @@ export default function RepoSelector(props) {
         props.updateCurrentRepo('', '', '');
     };
 
+    // PLACEHOLDER CODE TO TEST THE GEMINI ROUTE -- CHANGE LATER
+    const analyzeRepo = async () => {
+        try {
+            const res = await api.get('/gemini');
+            console.log(res.data.reply);   
+        } catch (err) {
+            console.error("Error with Gemini:", err);
+        }
+    };
+
     return (
         <div className="flex flex-row w-full gap-4 pt-4">
             {/* Selector for repositories */}
@@ -102,7 +112,7 @@ export default function RepoSelector(props) {
             </form>
 
             {/* Button to analyze the current repo */}
-            <Button variant="tertiary" className="text-success">Analyze</Button>
+            <Button variant="tertiary" className="text-success" onPress={analyzeRepo}>Analyze</Button>
 
             {/* Modal for deleting the current repo */}
             <Modal>

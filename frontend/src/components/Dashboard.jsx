@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import CodeViewer from "./CodeViewer.jsx";
 import api from "../axios";
 import ChatWindow from "./ChatWindow.jsx";
+import { Panel, Group, Separator } from "react-resizable-panels";
 
 export default function Dashboard() {
     // List of {full_name, default_branch} of the repositories added by the user
@@ -36,29 +37,35 @@ export default function Dashboard() {
     return (
         <div className="h-screen max-h-screen flex flex-col bg-white dark:bg-zinc-950">
             <Header />
-            <div className="flex flex-row flex-1 gap-4 overflow-hidden">
-                <div className="flex flex-col flex-1 pl-4 py-4 gap-4 overflow-hidden">
-                    <RepoSelector updateCurrentRepo={updateCurrentRepo} />
-                    <div className="flex flex-row flex-1 gap-4 overflow-hidden">
-                        <FileTree
-                            owner={currentOwner}
-                            repo={currentRepo}
-                            defaultBranch={currentDefaultBranch}
-                            updateCurrentFile={updateCurrentFile}
-                            updateCurrentBranch={updateCurrentBranch}
-                        />
-                        <CodeViewer
-                            owner={currentOwner}
-                            repo={currentRepo}
-                            branch={currentBranch}
-                            file={currentFile}
-                        />
+            <Group direction="horizontal" className="flex-1 overflow-hidden">
+                <Panel className="pr-3">
+                    <div className="flex flex-col h-full pl-4 py-4 gap-4 overflow-hidden">
+                        <RepoSelector updateCurrentRepo={updateCurrentRepo} />
+                        <div className="flex flex-row flex-1 gap-4 overflow-hidden">
+                            <FileTree
+                                owner={currentOwner}
+                                repo={currentRepo}
+                                defaultBranch={currentDefaultBranch}
+                                updateCurrentFile={updateCurrentFile}
+                                updateCurrentBranch={updateCurrentBranch}
+                            />
+                            <CodeViewer
+                                owner={currentOwner}
+                                repo={currentRepo}
+                                branch={currentBranch}
+                                file={currentFile}
+                            />
+                        </div>
                     </div>
-                </div>
+                </Panel>
+
+                <Separator className="w-1 hover:bg-blue-500 transition-colors" />
 
                 {/* Chat Window */}
-                <ChatWindow />
-            </div>
+                <Panel defaultSize="512px" minSize="25%" maxSize="50%">
+                    <ChatWindow />
+                </Panel>
+            </Group>
         </div>
     )
 }

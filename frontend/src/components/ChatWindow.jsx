@@ -11,7 +11,7 @@ export default function ChatWindow() {
     };
 
     return (
-        <div className="flex flex-col justify-between w-lg h-full bg-white! dark:bg-zinc-950! border-l border-zinc-200 dark:border-zinc-700 overflow-hidden">
+        <div className="flex flex-col justify-between h-full bg-white! dark:bg-zinc-950! border-l border-zinc-200 dark:border-zinc-700 overflow-hidden">
             {/* Chat Bubbles */}
 
             {/* Text Input */}

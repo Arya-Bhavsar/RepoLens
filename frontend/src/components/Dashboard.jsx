@@ -1,9 +1,8 @@
 import Header from "./Header.jsx";
 import RepoSelector from "./RepoSelector.jsx";
 import FileTree from "./FileTree.jsx";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CodeViewer from "./CodeViewer.jsx";
-import api from "../axios";
 import ChatWindow from "./ChatWindow.jsx";
 import { Panel, Group, Separator } from "react-resizable-panels";
 

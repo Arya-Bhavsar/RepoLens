@@ -2,8 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { requireAuth } from './auth.js';
-import { supabase } from './supabase.js';
-import octokit from './octokit.js';
+import { createClient } from '@supabase/supabase-js';
+import { Octokit } from "@octokit/rest";
 
 // Load environment variables
 dotenv.config();
@@ -13,6 +13,17 @@ const app = express();
 // Middleware setup
 app.use(cors());
 app.use(express.json())
+
+// Initialize Supabase client
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SECRET_KEY
+);
+
+// Initialize Octokit client with authentication
+const octokit = new Octokit({
+    auth: process.env.GITHUB_TOKEN,
+});
 
 // Route to get user profile
 app.get('/me', requireAuth, async (req, res) => {

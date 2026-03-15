@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { requireAuth } from './auth.js';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from './supabase.js';
 import { Octokit } from "@octokit/rest";
 import { CohereClientV2 } from 'cohere-ai';
 
@@ -14,12 +14,6 @@ const app = express();
 // Middleware setup
 app.use(cors());
 app.use(express.json())
-
-// Initialize Supabase client
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SECRET_KEY
-);
 
 // Initialize Octokit client with authentication
 const octokit = new Octokit({

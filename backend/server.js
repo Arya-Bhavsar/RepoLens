@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { requireAuth } from './auth.js';
 import { createClient } from '@supabase/supabase-js';
 import { Octokit } from "@octokit/rest";
+import { CohereClientV2 } from 'cohere-ai';
 
 // Load environment variables
 dotenv.config();
@@ -23,6 +24,11 @@ const supabase = createClient(
 // Initialize Octokit client with authentication
 const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
+});
+
+// Initialize Cohere client
+const cohere = new CohereClientV2({
+    token: process.env.COHERE_API_KEY,
 });
 
 // Route to get user profile

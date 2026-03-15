@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import { requireAuth } from './auth.js';
 import { supabase } from './supabase.js';
 import octokit from './octokit.js';
-import ai from './gemini.js';
 
 // Load environment variables
 dotenv.config();
@@ -145,21 +144,6 @@ app.get('/repo/file', requireAuth, async (req, res) => {
     } catch (err) {
         console.error('Error fetching file content:', err);
         res.status(500).json({ error: 'Failed to fetch file content' });
-    }
-});
-
-// Route to test the Gemini client
-app.get('/gemini', requireAuth, async (req, res) => {
-    try {
-        const result = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: "Say hello!"
-        });
-
-        res.json({ reply: result.text })
-    } catch (err) {
-        console.error("Failed to connect with Gemini client:", err);
-        res.status(500).json({ error: err.message });
     }
 });
 

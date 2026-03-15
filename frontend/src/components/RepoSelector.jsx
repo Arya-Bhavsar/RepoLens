@@ -52,14 +52,9 @@ export default function RepoSelector(props) {
         props.updateCurrentRepo('', '', '');
     };
 
-    // PLACEHOLDER CODE TO TEST THE GEMINI ROUTE -- CHANGE LATER
+    // Function to analyze the currently selected repo
     const analyzeRepo = async () => {
-        try {
-            const res = await api.get('/gemini');
-            console.log(res.data.reply);   
-        } catch (err) {
-            console.error("Error with Gemini:", err);
-        }
+        // Code here
     };
 
     return (

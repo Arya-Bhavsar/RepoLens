@@ -33,7 +33,6 @@ export default function RepoSelector(props) {
         // Fetch the repository data (full_name and default_branch) from the backend
         try {
             const res = await api.post('/repositories', { owner: match[1], repo: match[2] });
-            console.log('Repository data:', res.data);
             setRepos(prev => [...prev, res.data]);
             setSelectedRepo(res.data.full_name);
             // Pass the current owner, repo, default_branch to the parent component (Dashboard) using the updateCurrentRepo function
@@ -45,9 +44,11 @@ export default function RepoSelector(props) {
 
     // Function to delete the current repository
     const deleteRepo = async () => {
+        const [owner, name] = selectedRepo.split("/");
+        const res = await api.delete("/repositories", {
+            params: { owner, name }
+        });
         setRepos(prev => prev.filter(repo => repo.full_name !== selectedRepo));
-        const res = await api.delete("/repositories");
-        console.log(res);
         setSelectedRepo('');
         props.updateCurrentRepo('', '', '');
     };

@@ -23,15 +23,9 @@ export default function Dashboard() {
         setCurrentBranch("");
     };
 
-    const updateCurrentFile = (file) => {
-        console.log("Selected file:", file);
-        setCurrentFile(file);
-    };
+    const updateCurrentFile = (file) => setCurrentFile(file);
 
-    const updateCurrentBranch = (branch) => {
-        console.log("Current branch:", branch)
-        setCurrentBranch(branch);
-    }
+    const updateCurrentBranch = (branch) => setCurrentBranch(branch);
 
     return (
         <div className="h-screen max-h-screen flex flex-col bg-white dark:bg-zinc-950">

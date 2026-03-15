@@ -26,11 +26,9 @@ export default function FileTree(props) {
 
             // Fetch the file tree for the current repository and branch from the backend
             try {
-                console.log('Fetching branches for', props.owner, props.repo);
                 const res = await api.get('/repo/branches', {
                     params: { owner: props.owner, repo: props.repo }
                 });
-                console.log('Branches:', res.data);
                 setBranches(res.data);
                 setSelectedBranch(props.defaultBranch);
             } catch (err) {
@@ -53,7 +51,6 @@ export default function FileTree(props) {
                 const files = res.data;
                 // Convert the flat list of files and directories into a nested structure
                 const tree = buildTree(files);
-                console.log('Nested file tree:', tree);
                 setFileTree(tree);
 
             } catch (err) {

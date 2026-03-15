@@ -23,8 +23,6 @@ export default function Login() {
 
         if (error) return console.error('Error logging in:', error.message);
 
-        console.log('User logged in successfully!');
-
         // Update the current user in the context
         const res = await api.get('/me');
         setCurrentUser(res.data);

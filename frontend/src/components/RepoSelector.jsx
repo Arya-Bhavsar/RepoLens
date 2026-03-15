@@ -107,11 +107,18 @@ export default function RepoSelector(props) {
             </form>
 
             {/* Button to analyze the current repo */}
-            <Button variant="tertiary" className="text-success" onPress={analyzeRepo}>Analyze</Button>
+            <Button
+                variant="tertiary"
+                className="text-success"
+                onPress={analyzeRepo}
+                isDisabled={!selectedRepo}
+            >
+                Analyze
+            </Button>
 
             {/* Modal for deleting the current repo */}
             <Modal>
-                <Button slot="close" variant="danger-soft">Delete</Button>
+                <Button slot="close" variant="danger-soft" isDisabled={!selectedRepo}>Delete</Button>
 
                 <Modal.Backdrop>
                     <Modal.Container>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Input } from '@heroui/react';
 
-export default function ChatWindow() {
+export default function ChatWindow(props) {
     const [query, setQuery] = useState("");
     const [messages, setMessages] = useState([]);
 
@@ -40,6 +40,7 @@ export default function ChatWindow() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    disabled={!props.repo}
                     variant="secondary"
                 />
                 <p className="text-xs text-center text-zinc-400 mt-1 px-1">Ask about a repository or specific files by tagging them (@filename)</p>

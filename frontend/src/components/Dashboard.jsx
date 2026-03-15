@@ -62,7 +62,7 @@ export default function Dashboard() {
 
                 {/* Chat Window */}
                 <Panel defaultSize="512px" minSize="25%" maxSize="50%">
-                    <ChatWindow />
+                    <ChatWindow repo={currentRepo} />
                 </Panel>
             </Group>
         </div>

@@ -13,6 +13,7 @@ export default function Dashboard() {
     const [currentFile, setCurrentFile] = useState('');
     const [currentDefaultBranch, setCurrentDefaultBranch] = useState('');
     const [currentBranch, setCurrentBranch] = useState('');
+    const [messages, setMessages] = useState([]);
 
     // Function to pass currentOwner and currentRepo to FileTree component
     const updateCurrentRepo = (owner, repo, defaultBranch) => {
@@ -27,13 +28,28 @@ export default function Dashboard() {
 
     const updateCurrentBranch = (branch) => setCurrentBranch(branch);
 
+    const addMessage = (prompt, answer) => setMessages(prev => [...prev, { prompt, answer }]);
+
+    const updateLastMessage = (answer) => {
+        setMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { ...updated[updated.length - 1], answer };
+            return updated;
+        });
+    }
+
     return (
         <div className="h-screen max-h-screen flex flex-col bg-white dark:bg-zinc-950">
             <Header />
             <Group direction="horizontal" className="flex-1 overflow-hidden">
                 <Panel className="pr-3">
                     <div className="flex flex-col h-full pl-4 py-4 gap-4 overflow-hidden">
-                        <RepoSelector updateCurrentRepo={updateCurrentRepo} />
+                        <RepoSelector
+                            updateCurrentRepo={updateCurrentRepo}
+                            addMessage={addMessage}
+                            updateLastMessage={updateLastMessage}
+                            currentBranch={currentBranch}  
+                        />
                         <div className="flex flex-row flex-1 gap-4 overflow-hidden">
                             <FileTree
                                 owner={currentOwner}
@@ -56,7 +72,12 @@ export default function Dashboard() {
 
                 {/* Chat Window */}
                 <Panel defaultSize="512px" minSize="25%" maxSize="50%">
-                    <ChatWindow repo={currentRepo} />
+                    <ChatWindow
+                        repo={currentRepo}
+                        messages={messages}
+                        addMessage={addMessage}
+                        updateLastMessage={updateLastMessage}
+                    />
                 </Panel>
             </Group>
         </div>

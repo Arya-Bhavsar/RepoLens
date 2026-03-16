@@ -308,8 +308,8 @@ app.post('/repo/embeddings', requireAuth, async (req, res) => {
     generateEmbeddings(repoData.id, owner, repo, branch, latestSha).catch(console.error);
 });
 
-// Route to analyze and provide a brief summary of the repo
-app.get('/repo/analyze', requireAuth, async (req, res) => {
+// Route to summarize the repository
+app.get('/repo/summarize', requireAuth, async (req, res) => {
     const { owner, repo, branch } = req.query;
 
     const { data, error } = await supabase
@@ -362,8 +362,10 @@ app.get('/repo/analyze', requireAuth, async (req, res) => {
             }
         ],
         documents: chunks.map(c => ({
-            title: c.file_path,
-            snippet: c.chunk
+            data: {
+                title: c.file_path,
+                snippet: c.chunk
+            }
         }))
     });
 

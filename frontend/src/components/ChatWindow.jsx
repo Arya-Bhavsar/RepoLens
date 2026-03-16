@@ -1,22 +1,28 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Input } from '@heroui/react';
 
 export default function ChatWindow(props) {
     const [query, setQuery] = useState("");
-    const [messages, setMessages] = useState([]);
+
+    // Placed below the messages to scroll to the bottom automatically
+    const bottomRef = useRef(null);
+
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [props.messages]);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && query.trim() !== "") {
-            setMessages(prev => [...prev, { prompt: query, answer: "Test Answer" }])
+            props.addMessage(query, "Test answer");
             setQuery("");
         }
     };
 
     return (
-        <div className="flex flex-col justify-between h-full bg-white! dark:bg-zinc-950! border-l border-zinc-200 dark:border-zinc-700 overflow-hidden">
+        <div className="flex flex-col h-full pt-4 bg-white! dark:bg-zinc-950! border-l border-zinc-200 dark:border-zinc-700 overflow-hidden">
             {/* Chat Bubbles */}
-            <div className="flex flex-col p-4 gap-2">
-                {messages.map((msg, i) => (
+            <div className="flex flex-col flex-1 p-4 gap-3 overflow-y-auto">
+                {props.messages.map((msg, i) => (
                     <>
                         {/* Prompt */}
                         <div key={i} className="self-end max-w-[80%] px-3 py-2 text-white text-sm wrap-break-word bg-blue-500 rounded-tl-xl rounded-tr-xl rounded-bl-xl">
@@ -29,6 +35,9 @@ export default function ChatWindow(props) {
                         </div>
                     </>
                 ))}
+
+                {/* Ref attached to this div to automatically scroll to the bottom */}
+                <div ref={bottomRef} />
             </div>
 
             {/* Text Input */}

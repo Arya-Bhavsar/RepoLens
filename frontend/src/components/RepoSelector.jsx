@@ -54,8 +54,26 @@ export default function RepoSelector(props) {
     };
 
     // Function to analyze the currently selected repo
-    const analyzeRepo = async () => {
-        // Code here
+    const summarizeRepo = async () => {
+        const [owner, repo] = selectedRepo.split("/");
+
+        // Add a Loading... response before the LLM responds
+        props.addMessage(`Summarize ${repo}`, "Loading...");
+
+        try {
+            const res = await api.get('/repo/summarize', {
+                params: { owner, repo, branch: props.currentBranch }
+            });
+
+            if (res.data.status !== "ready") {
+                props.updateLastMessage('Repository is still being analyzed, please try again in a moment.');
+            } else {
+                props.updateLastMessage(res.data.summary);
+            }
+        } catch (err) {
+            console.error('Error analyzing repo:', err);
+            props.addMessage(`Summarize ${repo}`, 'Failed to analyze repository.');
+        }
     };
 
     return (
@@ -111,10 +129,10 @@ export default function RepoSelector(props) {
             <Button
                 variant="tertiary"
                 className="text-success"
-                onPress={analyzeRepo}
+                onPress={summarizeRepo}
                 isDisabled={!selectedRepo}
             >
-                Analyze
+                Summarize
             </Button>
 
             {/* Modal for deleting the current repo */}

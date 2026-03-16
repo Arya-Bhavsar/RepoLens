@@ -78,6 +78,11 @@ export default function FileTree(props) {
                     value={selectedBranch}
                     onChange={(value) => {
                         setSelectedBranch(value);
+                        api.post("/repo/embeddings", {
+                            owner: props.owner,
+                            repo: props.repo,
+                            branch: value
+                        }).catch(console.error);
                     }}
                 >
                     <Label /> {/* To avoid warnings in the console */}

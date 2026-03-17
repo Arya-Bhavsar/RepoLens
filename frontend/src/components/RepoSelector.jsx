@@ -59,7 +59,7 @@ export default function RepoSelector(props) {
 
         // Add a Loading... response before the LLM responds
         props.updateLoadingState(true);
-        props.addMessage(`Summarize ${repo}`, "Loading...");
+        props.addMessage(`Summarize ${repo}`, null);
 
         try {
             const res = await api.get('/repo/summarize', {
@@ -133,7 +133,7 @@ export default function RepoSelector(props) {
                 variant="tertiary"
                 className="text-success"
                 onPress={summarizeRepo}
-                isDisabled={!selectedRepo}
+                isDisabled={!selectedRepo || props.loading}
             >
                 Summarize
             </Button>

@@ -52,6 +52,7 @@ export default function Dashboard() {
                             addMessage={addMessage}
                             updateLastMessage={updateLastMessage}
                             currentBranch={currentBranch}
+                            loading={loading}
                             updateLoadingState={updateLoadingState}
                         />
                         <div className="flex flex-row flex-1 gap-4 overflow-hidden">

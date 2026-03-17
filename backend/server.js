@@ -322,11 +322,11 @@ app.get('/repo/summarize', requireAuth, async (req, res) => {
 
     if (error) return res.status(500).json({ error: 'Repository not found' });
 
-    const summaryPrompt = SUMMARY_PROMPT(owner, repo);
-
     // Don't analyze if the status is not ready (i.e. embeddings not generated)
     if (data.status !== 'ready') return res.json({ status: data.status });
     
+    const summaryPrompt = SUMMARY_PROMPT(owner, repo);
+
     // Get embedding for the prompt
     const embedResponse = await cohere.embed({
         model: 'embed-v4.0',
@@ -366,10 +366,68 @@ app.get('/repo/summarize', requireAuth, async (req, res) => {
         }))
     });
 
-    // Update repo status and return LLM summary
+    // Update status and return LLM summary
     res.json({
         status: 'ready',
         summary: response.message.content[0].text
+    })
+});
+
+// Route to get a response for the user query
+app.post('/repo/chat', requireAuth, async (req, res) => {
+    const { owner, repo, branch, query } = req.body;
+
+    const { data, error } = await supabase
+        .from("repositories")
+        .select("id, status")
+        .eq("owner", owner)
+        .eq("name", repo)
+        .single()
+    
+    if (error) return res.status(500).json({ error: "Repository not found" });
+
+    if (data.status !== "ready") return res.status(500).json({ status: data.status });
+
+    const embedResponse = await cohere.embed({
+        model: "embed-v4.0",
+        texts: [query],
+        inputType: "search_query",
+        embeddingTypes: ["float"]
+    });
+
+    const embedding = embedResponse.embeddings.float[0];
+
+    const { data: chunks } = await supabase.rpc("match_chunks", {
+        query_embedding: embedding,
+        match_repo_id: data.id,
+        match_branch: branch,
+        match_threshold: 0.1,
+        match_count: 20
+    })
+
+    const response = await cohere.chat({
+        model: "command-a-03-2025",
+        messages: [
+            {
+                role: "system",
+                content: SYSTEM_PROMPT
+            },
+            {
+                role: "user",
+                content: query
+            }
+        ],
+        documents: chunks.map(c => ({
+            data: {
+                title: c.file_path,
+                snippet: c.chunk
+            }
+        }))
+    });
+
+    res.json({
+        status: "ready",
+        answer: response.message.content[0].text
     })
 });
 

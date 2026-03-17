@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Input } from '@heroui/react';
 import { Fragment } from "react";
+import api from "../axios";
 
-export default function ChatWindow(props) {
+export default function ChatWindow({ owner, repo, messages, currentBranch, addMessage, updateLastMessage }) {
     const [query, setQuery] = useState("");
 
     // Placed below the messages to scroll to the bottom automatically
@@ -10,12 +11,34 @@ export default function ChatWindow(props) {
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [props.messages]);
+    }, [messages]);
 
-    const handleKeyDown = (e) => {
+    const handleKeyDown = async (e) => {
         if (e.key === "Enter" && query.trim() !== "") {
-            props.addMessage(query, "Test answer");
+            const currentQuery = query;
             setQuery("");
+
+            // Add a Loading... response before the LLM responds
+            addMessage(query, "Loading...");
+
+            try {
+                const res = await api.post('/repo/chat', {
+                    owner,
+                    repo,
+                    branch: currentBranch,
+                    query
+                });
+
+                // Update the response after api call
+                if (res.data.status !== "ready") {
+                    updateLastMessage("Repository is still being analyzed, please try again in a moment.");
+                } else {
+                    updateLastMessage(res.data.answer);
+                }
+            } catch (err) {
+                console.error("Error getting a response:", err);
+                updateLastMessage("Error getting a response");
+            }
         }
     };
 
@@ -23,7 +46,7 @@ export default function ChatWindow(props) {
         <div className="flex flex-col h-full pt-4 bg-white! dark:bg-zinc-950! border-l border-zinc-200 dark:border-zinc-700 overflow-hidden">
             {/* Chat Bubbles */}
             <div className="flex flex-col flex-1 p-4 gap-3 overflow-y-auto">
-                {props.messages.map((msg, i) => (
+                {messages.map((msg, i) => (
                     <Fragment key={i}>
                         {/* Prompt */}
                         <div className="self-end max-w-[80%] px-3 py-2 text-white text-sm wrap-break-word bg-blue-500 rounded-tl-xl rounded-tr-xl rounded-bl-xl">
@@ -50,7 +73,7 @@ export default function ChatWindow(props) {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    disabled={!props.repo}
+                    disabled={!repo}
                     variant="secondary"
                 />
                 <p className="text-xs text-center text-zinc-400 mt-1 px-1">Ask about a repository or specific files by tagging them (@filename)</p>

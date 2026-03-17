@@ -73,7 +73,9 @@ export default function Dashboard() {
                 {/* Chat Window */}
                 <Panel defaultSize="512px" minSize="25%" maxSize="50%">
                     <ChatWindow
+                        owner={currentOwner}
                         repo={currentRepo}
+                        currentBranch={currentBranch}
                         messages={messages}
                         addMessage={addMessage}
                         updateLastMessage={updateLastMessage}

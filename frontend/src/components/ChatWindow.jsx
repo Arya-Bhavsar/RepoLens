@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Input } from '@heroui/react';
+import { Fragment } from "react";
 
 export default function ChatWindow(props) {
     const [query, setQuery] = useState("");
@@ -23,17 +24,17 @@ export default function ChatWindow(props) {
             {/* Chat Bubbles */}
             <div className="flex flex-col flex-1 p-4 gap-3 overflow-y-auto">
                 {props.messages.map((msg, i) => (
-                    <>
+                    <Fragment key={i}>
                         {/* Prompt */}
-                        <div key={i} className="self-end max-w-[80%] px-3 py-2 text-white text-sm wrap-break-word bg-blue-500 rounded-tl-xl rounded-tr-xl rounded-bl-xl">
+                        <div className="self-end max-w-[80%] px-3 py-2 text-white text-sm wrap-break-word bg-blue-500 rounded-tl-xl rounded-tr-xl rounded-bl-xl">
                             {msg.prompt}
                         </div>
 
                         {/* Response */}
-                        <div key={i} className="self-start max-w-[80%] px-3 py-2 text-zinc-800 dark:text-zinc-100 text-sm wrap-break-word bg-zinc-200/50 dark:bg-zinc-800 rounded-tl-xl rounded-tr-xl rounded-br-xl">
+                        <div className="self-start max-w-[80%] px-3 py-2 text-zinc-800 dark:text-zinc-100 text-sm wrap-break-word bg-zinc-200/50 dark:bg-zinc-800 rounded-tl-xl rounded-tr-xl rounded-br-xl">
                             {msg.answer}
                         </div>
-                    </>
+                    </Fragment>
                 ))}
 
                 {/* Ref attached to this div to automatically scroll to the bottom */}

@@ -12,7 +12,6 @@ export default function FileTree(props) {
 
     const updateSelectedFile = (selectedFile) => {
         props.updateCurrentFile(selectedFile);
-        props.updateCurrentBranch(selectedBranch);
     };
 
     // Fetch the branches of the current repository whenever the owner or repo changes
@@ -78,6 +77,7 @@ export default function FileTree(props) {
                     value={selectedBranch}
                     onChange={(value) => {
                         setSelectedBranch(value);
+                        props.updateCurrentBranch(value);
                         api.post("/repo/embeddings", {
                             owner: props.owner,
                             repo: props.repo,

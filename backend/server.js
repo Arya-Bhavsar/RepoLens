@@ -347,6 +347,8 @@ app.get('/repo/summarize', requireAuth, async (req, res) => {
         match_count: 25
     })
 
+    console.log(chunks.map(c => c.file_path));
+
     // Call cohere chat with chunks as documents
     const response = await cohere.chat({
         model: 'command-a-03-2025',

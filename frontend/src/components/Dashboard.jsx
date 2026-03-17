@@ -21,7 +21,7 @@ export default function Dashboard() {
         setCurrentRepo(repo);
         setCurrentDefaultBranch(defaultBranch);
         setCurrentFile("");
-        setCurrentBranch("");
+        setCurrentBranch(defaultBranch);
     };
 
     const updateCurrentFile = (file) => setCurrentFile(file);

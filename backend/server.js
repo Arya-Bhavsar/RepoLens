@@ -5,6 +5,7 @@ import { requireAuth } from './auth.js';
 import { supabase } from './supabase.js';
 import { Octokit } from "@octokit/rest";
 import { CohereClientV2 } from 'cohere-ai';
+import { SYSTEM_PROMPT, SUMMARY_PROMPT } from './prompt.js';
 
 // Load environment variables
 dotenv.config();
@@ -321,18 +322,15 @@ app.get('/repo/summarize', requireAuth, async (req, res) => {
 
     if (error) return res.status(500).json({ error: 'Repository not found' });
 
+    const summaryPrompt = SUMMARY_PROMPT(owner, repo);
+
     // Don't analyze if the status is not ready (i.e. embeddings not generated)
     if (data.status !== 'ready') return res.json({ status: data.status });
-
-    // Run similarity search with this prompt when user clicks the "Analyze" button
-    const analyzePrompt = `What is the purpose of this repository?
-        What is the tech stack, architecture, and project structure?
-        Give an overview of the project.`;
     
     // Get embedding for the prompt
     const embedResponse = await cohere.embed({
         model: 'embed-v4.0',
-        texts: [analyzePrompt],
+        texts: [summaryPrompt],
         inputType: 'search_query',
         embeddingTypes: ['float']
     })
@@ -347,20 +345,17 @@ app.get('/repo/summarize', requireAuth, async (req, res) => {
         match_count: 25
     })
 
-    console.log(chunks.map(c => c.file_path));
-
     // Call cohere chat with chunks as documents
     const response = await cohere.chat({
         model: 'command-a-03-2025',
         messages: [
             {
                 role: 'system',
-                content: `You are a helpful assistant that helps developers understand codebases.
-                    Provide a concise summary of ${owner}/${repo} covering its purpose, tech stack, and structure.`
+                content: SYSTEM_PROMPT
             },
             {
                 role: 'user',
-                content: analyzePrompt
+                content: summaryPrompt
             }
         ],
         documents: chunks.map(c => ({

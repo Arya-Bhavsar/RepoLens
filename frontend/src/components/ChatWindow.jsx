@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { Input } from '@heroui/react';
+import { Input, Spinner } from '@heroui/react';
 import { Fragment } from "react";
 import api from "../axios";
 
-export default function ChatWindow({ owner, repo, messages, currentBranch, addMessage, updateLastMessage }) {
+export default function ChatWindow({ owner, repo, messages, currentBranch, addMessage, updateLastMessage, loading, updateLoadingState }) {
     const [query, setQuery] = useState("");
 
     // Placed below the messages to scroll to the bottom automatically
@@ -19,6 +19,7 @@ export default function ChatWindow({ owner, repo, messages, currentBranch, addMe
             setQuery("");
 
             // Add a Loading... response before the LLM responds
+            updateLoadingState(true);
             addMessage(query, "Loading...");
 
             try {
@@ -38,6 +39,8 @@ export default function ChatWindow({ owner, repo, messages, currentBranch, addMe
             } catch (err) {
                 console.error("Error getting a response:", err);
                 updateLastMessage("Error getting a response");
+            } finally {
+                updateLoadingState(false);
             }
         }
     };
@@ -73,10 +76,10 @@ export default function ChatWindow({ owner, repo, messages, currentBranch, addMe
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    disabled={!repo}
+                    disabled={!repo || loading}
                     variant="secondary"
                 />
-                <p className="text-xs text-center text-zinc-400 mt-1 px-1">Ask about a repository or specific files by tagging them (@filename)</p>
+                <p className="text-xs text-center text-zinc-400 mt-1 px-1">Ask anything aboout the repository or any of its files and directories</p>
             </div>
         </div>
     )

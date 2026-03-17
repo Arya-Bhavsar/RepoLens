@@ -58,6 +58,7 @@ export default function RepoSelector(props) {
         const [owner, repo] = selectedRepo.split("/");
 
         // Add a Loading... response before the LLM responds
+        props.updateLoadingState(true);
         props.addMessage(`Summarize ${repo}`, "Loading...");
 
         try {
@@ -73,6 +74,8 @@ export default function RepoSelector(props) {
         } catch (err) {
             console.error('Error analyzing repo:', err);
             props.addMessage(`Summarize ${repo}`, 'Failed to analyze repository.');
+        } finally {
+            props.updateLoadingState(false);
         }
     };
 

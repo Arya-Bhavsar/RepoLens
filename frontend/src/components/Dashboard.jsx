@@ -14,6 +14,7 @@ export default function Dashboard() {
     const [currentDefaultBranch, setCurrentDefaultBranch] = useState('');
     const [currentBranch, setCurrentBranch] = useState('');
     const [messages, setMessages] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     // Function to pass currentOwner and currentRepo to FileTree component
     const updateCurrentRepo = (owner, repo, defaultBranch) => {
@@ -38,6 +39,8 @@ export default function Dashboard() {
         });
     }
 
+    const updateLoadingState = (val) => setLoading(val);
+
     return (
         <div className="h-screen max-h-screen flex flex-col bg-white dark:bg-zinc-950">
             <Header />
@@ -48,7 +51,8 @@ export default function Dashboard() {
                             updateCurrentRepo={updateCurrentRepo}
                             addMessage={addMessage}
                             updateLastMessage={updateLastMessage}
-                            currentBranch={currentBranch}  
+                            currentBranch={currentBranch}
+                            updateLoadingState={updateLoadingState}
                         />
                         <div className="flex flex-row flex-1 gap-4 overflow-hidden">
                             <FileTree
@@ -79,6 +83,8 @@ export default function Dashboard() {
                         messages={messages}
                         addMessage={addMessage}
                         updateLastMessage={updateLastMessage}
+                        loading={loading}
+                        updateLoadingState={updateLoadingState}
                     />
                 </Panel>
             </Group>

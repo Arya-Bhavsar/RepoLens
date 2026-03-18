@@ -90,11 +90,17 @@ export default function ChatWindow({ owner, repo, messages, currentBranch, addMe
                         </div>
 
                         {/* Response */}
-                        <div className="self-start max-w-[90%] text-sm prose prose-sm dark:prose-invert prose-zinc">
-                            {i === messages.length - 1 && loading 
-                                ? <TypingIndicator />
-                                : <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>{msg.answer}</ReactMarkdown>}
-                        </div>
+                        {i === messages.length - 1 && loading 
+                            ? (
+                                <div className="self-start px-3 py-2 bg-zinc-200/50 dark:bg-zinc-800 rounded-tl-xl rounded-tr-xl rounded-br-xl">
+                                    <TypingIndicator />
+                                </div>
+                            ) : (
+                                <div className="self-start max-w-[90%] text-sm prose prose-sm dark:prose-invert prose-zinc">
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>{msg.answer}</ReactMarkdown>
+                                </div>
+                            )
+                        }
                     </Fragment>
                 ))}
 

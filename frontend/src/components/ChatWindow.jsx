@@ -19,6 +19,8 @@ export default function ChatWindow({ owner, repo, messages, currentBranch, addMe
             const currentQuery = query;
             setQuery("");
 
+            const currentHistory = [...messages]
+
             // Add a Loading... response before the LLM responds
             updateLoadingState(true);
             addMessage(query, null);
@@ -28,7 +30,8 @@ export default function ChatWindow({ owner, repo, messages, currentBranch, addMe
                     owner,
                     repo,
                     branch: currentBranch,
-                    query: currentQuery
+                    query: currentQuery,
+                    history: currentHistory // Skips the last Loading... message
                 });
 
                 // Update the response after api call

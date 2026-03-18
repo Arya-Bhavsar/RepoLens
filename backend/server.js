@@ -375,7 +375,7 @@ app.get('/repo/summarize', requireAuth, async (req, res) => {
 
 // Route to get a response for the user query
 app.post('/repo/chat', requireAuth, async (req, res) => {
-    const { owner, repo, branch, query } = req.body;
+    const { owner, repo, branch, query, history } = req.body;
 
     const { data, error } = await supabase
         .from("repositories")
@@ -388,15 +388,39 @@ app.post('/repo/chat', requireAuth, async (req, res) => {
 
     if (data.status !== "ready") return res.status(500).json({ status: data.status });
 
+    // Transform the history for the chat call
+    const chatHistory = history.flatMap(msg => [
+        { role: "user", content: msg.prompt },
+        { role: "assistant", content: msg.answer }
+    ]);
+
+    // Rewrite the query to be self-contained
+    const rewriteResponse = await cohere.chat({
+        model: "command-r-08-2024",
+        messages: [
+            {
+                role: "system",
+                content: "Rewrite the user query to be self-contained based on the conversation history. Return only the rewritten query, nothing else."
+            },
+            ...chatHistory,
+            {
+                role: "user",
+                content: `Rewrite this query to be self-contained: "${query}"`
+            }
+        ]
+    });
+    const rewrittenQuery = rewriteResponse.message.content[0].text;
+
+    // Generate embedding for the query
     const embedResponse = await cohere.embed({
         model: "embed-v4.0",
-        texts: [query],
+        texts: [rewrittenQuery],
         inputType: "search_query",
         embeddingTypes: ["float"]
     });
-
     const embedding = embedResponse.embeddings.float[0];
 
+    // Run similarity search to get relevant chunks
     const { data: chunks } = await supabase.rpc("match_chunks", {
         query_embedding: embedding,
         match_repo_id: data.id,
@@ -405,17 +429,13 @@ app.post('/repo/chat', requireAuth, async (req, res) => {
         match_count: 20
     })
 
+    // Chat call to get a response for a user query
     const response = await cohere.chat({
         model: "command-a-03-2025",
         messages: [
-            {
-                role: "system",
-                content: SYSTEM_PROMPT
-            },
-            {
-                role: "user",
-                content: query
-            }
+            { role: "system", content: SYSTEM_PROMPT },
+            ...chatHistory, // Added for context for the LLM
+            { role: "user", content: query }
         ],
         documents: chunks.map(c => ({
             data: {

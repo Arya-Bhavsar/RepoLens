@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Input } from '@heroui/react';
 import { Fragment } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark, oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useTheme } from "../ThemeContext";
 import TypingIndicator from "./TypingIndicator";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -11,6 +14,8 @@ export default function ChatWindow({ owner, repo, messages, currentBranch, addMe
 
     // Placed below the messages to scroll to the bottom automatically
     const bottomRef = useRef(null);
+
+    const { darkMode } = useTheme();
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -51,6 +56,28 @@ export default function ChatWindow({ owner, repo, messages, currentBranch, addMe
         }
     };
 
+    // Used by ReactMarkdown to syntax highlight code inside a block
+    const components = {
+        code({ node, inline, className, children, ...props }) {
+            const match = /language-(\w+)/.exec(className || '');
+            return !inline && match ? (
+                <SyntaxHighlighter
+                    style={darkMode ? oneDark : oneLight}
+                    language={match[1]}
+                    PreTag="div"
+                    customStyle={{ margin: 0, borderRadius: '0.375rem' }}
+                    {...props}
+                >
+                    {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
+            ) : (
+                <code className={className} {...props}>
+                    {children}
+                </code>
+            )
+        }
+    };
+
     return (
         <div className="flex flex-col h-full pt-4 bg-white! dark:bg-zinc-950! border-l border-zinc-200 dark:border-zinc-700 overflow-hidden">
             {/* Chat Bubbles */}
@@ -66,7 +93,7 @@ export default function ChatWindow({ owner, repo, messages, currentBranch, addMe
                         <div className="self-start max-w-[90%] text-sm prose prose-sm dark:prose-invert prose-zinc">
                             {i === messages.length - 1 && loading 
                                 ? <TypingIndicator />
-                                : <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.answer}</ReactMarkdown>}
+                                : <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>{msg.answer}</ReactMarkdown>}
                         </div>
                     </Fragment>
                 ))}

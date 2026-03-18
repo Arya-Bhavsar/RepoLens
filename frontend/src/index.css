@@ -21,13 +21,13 @@
 }
 
 .prose pre {
-    background: rgba(0, 0, 0, 0.03);
-    color: #1e1e1e;
+    background: transparent;
+    padding: 0;
+    margin: 0;
 }
 
 .dark .prose pre {
     background: rgba(255, 255, 255, 0.05);
-    color: #d4d4d4;
 }
 
 .prose pre code {

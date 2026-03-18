@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Input } from '@heroui/react';
 import { Fragment } from "react";
 import TypingIndicator from "./TypingIndicator";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import api from "../axios";
 
 export default function ChatWindow({ owner, repo, messages, currentBranch, addMessage, updateLastMessage, loading, updateLoadingState }) {
@@ -61,8 +63,10 @@ export default function ChatWindow({ owner, repo, messages, currentBranch, addMe
                         </div>
 
                         {/* Response */}
-                        <div className="self-start max-w-[80%] px-3 py-2 text-zinc-800 dark:text-zinc-100 text-sm wrap-break-word bg-zinc-200/50 dark:bg-zinc-800 rounded-tl-xl rounded-tr-xl rounded-br-xl">
-                            {i === messages.length - 1 && loading ? <TypingIndicator /> : msg.answer}
+                        <div className="self-start max-w-[90%] text-sm prose prose-sm dark:prose-invert prose-zinc">
+                            {i === messages.length - 1 && loading 
+                                ? <TypingIndicator />
+                                : <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.answer}</ReactMarkdown>}
                         </div>
                     </Fragment>
                 ))}

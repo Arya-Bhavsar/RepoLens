@@ -33,8 +33,6 @@ export default function Signup() {
 
         if (profileError) return console.error('Error creating profile:', profileError.message);
         
-        console.log('User signed up successfully!');
-
         // Redirect to the login after successful signup
         navigate('/login');
     }

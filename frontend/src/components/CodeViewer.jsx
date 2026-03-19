@@ -42,14 +42,26 @@ export default function CodeViewer(props) {
     }, [props.file, props.branch]);
     
     return (
-        <div className={`code-viewer flex-1 h-full overflow-auto rounded-lg text-[12px] ${darkMode ? "[&_pre]:bg-zinc-900!" : "[&_pre]:bg-zinc-50!"}`}>
-            {code && <ShikiHighlighter
-                language={fileExtension}
-                theme={darkMode ? "dark-plus" : "light-plus"}
-                showLineNumbers
-            >
-                {code}
-            </ShikiHighlighter>}
+        <div className="flex-1 h-full flex flex-col rounded-lg text-[12px] overflow-hidden">
+            {/* File path */}
+            {props.file && (
+                <div className="shrink-0 px-4 py-2 text-[11px] font-medium border-b bg-zinc-50 text-zinc-500 border-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-700">
+                    {props.file}
+                </div>
+            )}
+
+            {/* Code Viewer */}
+            <div className={`flex-1 overflow-auto ${darkMode ? "[&_pre]:bg-zinc-900!" : "[&_pre]:bg-zinc-50!"}`}>
+                {code && (
+                    <ShikiHighlighter
+                        language={fileExtension}
+                        theme={darkMode ? "dark-plus" : "light-plus"}
+                        showLineNumbers
+                    >
+                        {code}
+                    </ShikiHighlighter>
+                )}
+            </div>
         </div>
     )
 }

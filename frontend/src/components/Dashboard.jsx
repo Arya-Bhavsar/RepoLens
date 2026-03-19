@@ -1,9 +1,10 @@
 import Header from "./Header.jsx";
 import RepoSelector from "./RepoSelector.jsx";
 import FileTree from "./FileTree.jsx";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CodeViewer from "./CodeViewer.jsx";
-import api from "../axios";
+import ChatWindow from "./ChatWindow.jsx";
+import { Panel, Group, Separator } from "react-resizable-panels";
 
 export default function Dashboard() {
     // List of {full_name, default_branch} of the repositories added by the user
@@ -12,20 +13,8 @@ export default function Dashboard() {
     const [currentFile, setCurrentFile] = useState('');
     const [currentDefaultBranch, setCurrentDefaultBranch] = useState('');
     const [currentBranch, setCurrentBranch] = useState('');
-
-    // To test the Gemini client route -- REMOVE LATER
-    useEffect(() => {
-        const testGemini = async () => {
-            try {
-                const res = await api.get('/gemini');
-                console.log(res.data.reply);
-            } catch (err) {
-                console.error("Error with Gemini:", err);
-            }
-        };
-
-        testGemini();
-    }, []);
+    const [messages, setMessages] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     // Function to pass currentOwner and currentRepo to FileTree component
     const updateCurrentRepo = (owner, repo, defaultBranch) => {
@@ -33,40 +22,73 @@ export default function Dashboard() {
         setCurrentRepo(repo);
         setCurrentDefaultBranch(defaultBranch);
         setCurrentFile("");
-        setCurrentBranch("");
+        setCurrentBranch(defaultBranch);
     };
 
-    const updateCurrentFile = (file) => {
-        console.log("Selected file:", file);
-        setCurrentFile(file);
-    };
+    const updateCurrentFile = (file) => setCurrentFile(file);
 
-    const updateCurrentBranch = (branch) => {
-        console.log("Current branch:", branch)
-        setCurrentBranch(branch);
+    const updateCurrentBranch = (branch) => setCurrentBranch(branch);
+
+    const addMessage = (prompt, answer) => setMessages(prev => [...prev, { prompt, answer }]);
+
+    const updateLastMessage = (answer) => {
+        setMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { ...updated[updated.length - 1], answer };
+            return updated;
+        });
     }
+
+    const updateLoadingState = (val) => setLoading(val);
 
     return (
         <div className="h-screen max-h-screen flex flex-col bg-white dark:bg-zinc-950">
             <Header />
-            <div className="flex flex-col flex-1 p-4 gap-4 overflow-hidden">
-                <RepoSelector updateCurrentRepo={updateCurrentRepo} />
-                <div className="flex flex-row flex-1 gap-4 overflow-hidden">
-                    <FileTree
+            <Group direction="horizontal" className="flex-1 overflow-hidden">
+                <Panel className="pr-3">
+                    <div className="flex flex-col h-full pl-4 py-4 gap-4 overflow-hidden">
+                        <RepoSelector
+                            updateCurrentRepo={updateCurrentRepo}
+                            addMessage={addMessage}
+                            updateLastMessage={updateLastMessage}
+                            currentBranch={currentBranch}
+                            loading={loading}
+                            updateLoadingState={updateLoadingState}
+                        />
+                        <div className="flex flex-row flex-1 gap-4 overflow-hidden">
+                            <FileTree
+                                owner={currentOwner}
+                                repo={currentRepo}
+                                defaultBranch={currentDefaultBranch}
+                                updateCurrentFile={updateCurrentFile}
+                                updateCurrentBranch={updateCurrentBranch}
+                            />
+                            <CodeViewer
+                                owner={currentOwner}
+                                repo={currentRepo}
+                                branch={currentBranch}
+                                file={currentFile}
+                            />
+                        </div>
+                    </div>
+                </Panel>
+
+                <Separator className="w-1 hover:bg-blue-500 transition-colors" />
+
+                {/* Chat Window */}
+                <Panel defaultSize="512px" minSize="25%" maxSize="50%">
+                    <ChatWindow
                         owner={currentOwner}
                         repo={currentRepo}
-                        defaultBranch={currentDefaultBranch}
-                        updateCurrentFile={updateCurrentFile}
-                        updateCurrentBranch={updateCurrentBranch}
+                        currentBranch={currentBranch}
+                        messages={messages}
+                        addMessage={addMessage}
+                        updateLastMessage={updateLastMessage}
+                        loading={loading}
+                        updateLoadingState={updateLoadingState}
                     />
-                    <CodeViewer
-                        owner={currentOwner}
-                        repo={currentRepo}
-                        branch={currentBranch}
-                        file={currentFile}
-                    />
-                </div>
-            </div>
+                </Panel>
+            </Group>
         </div>
     )
 }

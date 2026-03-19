@@ -33,7 +33,6 @@ export default function RepoSelector(props) {
         // Fetch the repository data (full_name and default_branch) from the backend
         try {
             const res = await api.post('/repositories', { owner: match[1], repo: match[2] });
-            console.log('Repository data:', res.data);
             setRepos(prev => [...prev, res.data]);
             setSelectedRepo(res.data.full_name);
             // Pass the current owner, repo, default_branch to the parent component (Dashboard) using the updateCurrentRepo function
@@ -45,11 +44,39 @@ export default function RepoSelector(props) {
 
     // Function to delete the current repository
     const deleteRepo = async () => {
+        const [owner, name] = selectedRepo.split("/");
+        const res = await api.delete("/repositories", {
+            params: { owner, name }
+        });
         setRepos(prev => prev.filter(repo => repo.full_name !== selectedRepo));
-        const res = await api.delete("/repositories");
-        console.log(res);
         setSelectedRepo('');
         props.updateCurrentRepo('', '', '');
+    };
+
+    // Function to analyze the currently selected repo
+    const summarizeRepo = async () => {
+        const [owner, repo] = selectedRepo.split("/");
+
+        // Add a Loading... response before the LLM responds
+        props.updateLoadingState(true);
+        props.addMessage(`Summarize ${repo}`, null);
+
+        try {
+            const res = await api.get('/repo/summarize', {
+                params: { owner, repo, branch: props.currentBranch }
+            });
+
+            if (res.data.status !== "ready") {
+                props.updateLastMessage('Repository is still being analyzed, please try again in a moment.');
+            } else {
+                props.updateLastMessage(res.data.summary);
+            }
+        } catch (err) {
+            console.error('Error analyzing repo:', err);
+            props.addMessage(`Summarize ${repo}`, 'Failed to analyze repository.');
+        } finally {
+            props.updateLoadingState(false);
+        }
     };
 
     return (
@@ -102,11 +129,18 @@ export default function RepoSelector(props) {
             </form>
 
             {/* Button to analyze the current repo */}
-            <Button variant="tertiary" className="text-success">Analyze</Button>
+            <Button
+                variant="tertiary"
+                className="text-success"
+                onPress={summarizeRepo}
+                isDisabled={!selectedRepo || props.loading}
+            >
+                Summarize
+            </Button>
 
             {/* Modal for deleting the current repo */}
             <Modal>
-                <Button slot="close" variant="danger-soft">Delete</Button>
+                <Button slot="close" variant="danger-soft" isDisabled={!selectedRepo}>Delete</Button>
 
                 <Modal.Backdrop>
                     <Modal.Container>

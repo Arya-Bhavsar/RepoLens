@@ -3,8 +3,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { requireAuth } from './auth.js';
 import { supabase } from './supabase.js';
-import octokit from './octokit.js';
-import ai from './gemini.js';
+import { Octokit } from "@octokit/rest";
+import { CohereClientV2 } from 'cohere-ai';
+import { SYSTEM_PROMPT, SUMMARY_PROMPT } from './prompt.js';
 
 // Load environment variables
 dotenv.config();
@@ -14,6 +15,16 @@ const app = express();
 // Middleware setup
 app.use(cors());
 app.use(express.json())
+
+// Initialize Octokit client with authentication
+const octokit = new Octokit({
+    auth: process.env.GITHUB_TOKEN,
+});
+
+// Initialize Cohere client
+const cohere = new CohereClientV2({
+    token: process.env.COHERE_API_KEY,
+});
 
 // Route to get user profile
 app.get('/me', requireAuth, async (req, res) => {
@@ -62,25 +73,32 @@ app.post('/repositories', requireAuth, async (req, res) => {
         const { data } = await octokit.repos.get({ owner, repo });
         
         // Add the repo to Supabase
-        const { error } = await supabase
+        const { data: insertedRepo, error } = await supabase
             .from("repositories")
             .insert({
                 owner: owner,
                 name: repo,
                 default_branch: data.default_branch,
                 user_id: req.user.id
-            });
+            })
+            .select('id')
+            .single();
 
         if (error) {
             console.log("Error adding reposiroty to Supabase:", error);
             return res.status(500).json({ error: 'Failed to add repository data' });
         }
+
+        const { data: branchData } = await octokit.repos.getBranch({ owner, repo, branch: data.default_branch })
         
         // Return the repo full name and default branch
         res.json({
             full_name: data.full_name,
             default_branch: data.default_branch
         })
+
+        // Generate and store embeddings in the background
+        generateEmbeddings(insertedRepo.id, owner, repo, data.default_branch, branchData.commit.sha).catch(console.error);
     } catch (err) {
         console.error('Error fetching repository data:', err);
         return res.status(500).json({ error: 'Failed to fetch repository data' });
@@ -148,19 +166,289 @@ app.get('/repo/file', requireAuth, async (req, res) => {
     }
 });
 
-// Route to test the Gemini client
-app.get('/gemini', requireAuth, async (req, res) => {
-    try {
-        const result = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: "Say hello!"
-        });
+// Files/directories to skip for embeddings
+const SKIP_PATTERNS = [
+    // Dependencies
+    'node_modules/', 'vendor/', '.venv/', 'venv/', '__pycache__/',
+    // Lock files
+    'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'composer.lock', 'Gemfile.lock',
+    // Build outputs
+    'dist/', 'build/', 'out/', '.next/', '.nuxt/', 'coverage/',
+    // Git
+    '.git/',
+    // Minified/generated
+    '.min.js', '.min.css', '.bundle.js', '.chunk.js', '.map',
+    // Images
+    '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp', '.bmp', '.tiff',
+    // Fonts
+    '.ttf', '.woff', '.woff2', '.eot', '.otf',
+    // Media
+    '.mp4', '.mp3', '.wav', '.ogg', '.avi', '.mov',
+    // Archives
+    '.zip', '.tar', '.gz', '.rar', '.7z',
+    // Documents
+    '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+    // Binary/compiled
+    '.exe', '.dll', '.so', '.dylib', '.class', '.pyc',
+    // Data files
+    '.csv', '.sqlite', '.db',
+    // Logs
+    '.log',
+    // Environment
+    '.env', '.env.local', '.env.production',
+];
 
-        res.json({ reply: result.text })
-    } catch (err) {
-        console.error("Failed to connect with Gemini client:", err);
-        res.status(500).json({ error: err.message });
+// Helper function to determine if a file should be skipped for embedding
+const shouldSkipFile = (path) => {
+    return SKIP_PATTERNS.some(pattern => path.includes(pattern));
+};
+
+// Helper function to get chunks
+const chunkText = (text, chunkSize = 500, overlap = 50) => {
+    const words = text.split(/\s+/);
+    const chunks = []
+    for (let i = 0; i < words.length; i += chunkSize - overlap) {
+        chunks.push(words.slice(i, i + chunkSize).join(' '));
+        if (i + chunkSize >= words.length) break;
     }
+    return chunks;
+};
+
+// Helper function to generate embeddings
+const generateEmbeddings = async (repoId, owner, repo, branch, sha) => {
+    try {
+        // Delete old chunks for the branch. At this point re-embedding is needed because of updated SHA
+        await supabase.from('repo_chunks').delete().eq('repo_id', repoId).eq('branch', branch);
+
+        // Fetch the file tree of the current repo
+        const { data: fileTree } = await octokit.git.getTree({ owner, repo, tree_sha: branch, recursive: true });
+        const files = fileTree.tree.filter(f => f.type === "blob" && !shouldSkipFile(f.path))
+
+        // Get chunks of the files
+        const allChunks = []
+        for (const file of files) {
+            try {
+                const { data: fileData } = await octokit.repos.getContent({ owner, repo, path: file.path, ref: branch });
+                const content = Buffer.from(fileData.content, 'base64').toString('utf-8');
+                const chunks = chunkText(content);
+                for (const chunk of chunks) {
+                    allChunks.push({ file_path: file.path, chunk });
+                }
+            } catch (err) {
+                console.error(`Skipping ${file.path}:`, err.message);
+            }
+
+            if (allChunks.length >= 500) break;
+        }
+
+        // Batch embed in groups of 96
+        const BATCH_SIZE = 96;
+        for (let i = 0; i < allChunks.length; i += BATCH_SIZE) {
+            const batch = allChunks.slice(i, i + BATCH_SIZE);
+
+            const response = await cohere.embed({
+                model: 'embed-v4.0',
+                texts: batch.map(c => c.chunk),
+                inputType: 'search_document',
+                embeddingTypes: ['float']
+            });
+
+            const embeddings = response.embeddings.float;
+
+            // Insert into Supabase repo_chunks table
+            const rows = batch.map((c, j) => ({
+                repo_id: repoId,
+                branch,
+                file_path: c.file_path,
+                chunk: c.chunk,
+                embedding: embeddings[j]
+            }));
+
+            const { error } = await supabase.from('repo_chunks').insert(rows);
+            if (error) console.error("Error inserting chunks:", error.message);
+        }
+
+        // Update repo status to ready
+        await supabase.from('repositories').update({ status: 'ready' }).eq('id', repoId);
+
+        // Update or insert the branch into the branches table
+        await supabase.from('branches').upsert({ repo_id: repoId, name: branch, last_commit_sha: sha }, { onConflict: 'repo_id,name' });
+    } catch (err) {
+        console.error("Error generating embeddings:", err);
+        await supabase.from('repositories').update({ status: 'error' }).eq('id', repoId);
+    }
+};
+
+// Route to check branch SHA and update embeddings
+app.post('/repo/embeddings', requireAuth, async (req, res) => {
+    const { owner, repo, branch } = req.body;
+
+    const { data: repoData } = await supabase
+        .from('repositories')
+        .select('id')
+        .eq('owner', owner)
+        .eq('name', repo)
+        .single();
+
+    // Get the latest commit sha for the branch
+    const { data: branchData } = await octokit.repos.getBranch({ owner, repo, branch });
+    const latestSha = branchData.commit.sha;
+    
+    const { data: branchRecord } = await supabase
+        .from('branches')
+        .select('last_commit_sha')
+        .eq('repo_id', repoData.id)
+        .eq('name', branch)
+        .single();
+    
+    if (branchRecord?.last_commit_sha === latestSha) {
+        return res.json({ status: 'up_to_date' });
+    }
+
+    res.json({ status: 'pending' });
+    generateEmbeddings(repoData.id, owner, repo, branch, latestSha).catch(console.error);
+});
+
+// Route to summarize the repository
+app.get('/repo/summarize', requireAuth, async (req, res) => {
+    const { owner, repo, branch } = req.query;
+
+    const { data, error } = await supabase
+        .from('repositories')
+        .select('id, status')
+        .eq('owner', owner)
+        .eq('name', repo)
+        .single()
+
+    if (error) return res.status(500).json({ error: 'Repository not found' });
+
+    // Don't analyze if the status is not ready (i.e. embeddings not generated)
+    if (data.status !== 'ready') return res.json({ status: data.status });
+    
+    const summaryPrompt = SUMMARY_PROMPT(owner, repo);
+
+    // Get embedding for the prompt
+    const embedResponse = await cohere.embed({
+        model: 'embed-v4.0',
+        texts: [summaryPrompt],
+        inputType: 'search_query',
+        embeddingTypes: ['float']
+    })
+    const embedding = embedResponse.embeddings.float[0];
+
+    // Run similarity search
+    const { data: chunks } = await supabase.rpc('match_chunks', {
+        query_embedding: embedding,
+        match_repo_id: data.id,
+        match_branch: branch,
+        match_threshold: 0.1,
+        match_count: 25
+    })
+
+    // Call cohere chat with chunks as documents
+    const response = await cohere.chat({
+        model: 'command-a-03-2025',
+        messages: [
+            {
+                role: 'system',
+                content: SYSTEM_PROMPT
+            },
+            {
+                role: 'user',
+                content: summaryPrompt
+            }
+        ],
+        documents: chunks.map(c => ({
+            data: {
+                title: c.file_path,
+                snippet: c.chunk
+            }
+        }))
+    });
+
+    // Update status and return LLM summary
+    res.json({
+        status: 'ready',
+        summary: response.message.content[0].text
+    })
+});
+
+// Route to get a response for the user query
+app.post('/repo/chat', requireAuth, async (req, res) => {
+    const { owner, repo, branch, query, history } = req.body;
+
+    const { data, error } = await supabase
+        .from("repositories")
+        .select("id, status")
+        .eq("owner", owner)
+        .eq("name", repo)
+        .single()
+    
+    if (error) return res.status(500).json({ error: "Repository not found" });
+
+    if (data.status !== "ready") return res.status(500).json({ status: data.status });
+
+    // Transform the history for the chat call
+    const chatHistory = history.flatMap(msg => [
+        { role: "user", content: msg.prompt },
+        { role: "assistant", content: msg.answer }
+    ]);
+
+    // Rewrite the query to be self-contained
+    const rewriteResponse = await cohere.chat({
+        model: "command-r-08-2024",
+        messages: [
+            {
+                role: "system",
+                content: "Rewrite the user query to be self-contained based on the conversation history. Return only the rewritten query, nothing else."
+            },
+            ...chatHistory,
+            {
+                role: "user",
+                content: `Rewrite this query to be self-contained: "${query}"`
+            }
+        ]
+    });
+    const rewrittenQuery = rewriteResponse.message.content[0].text;
+
+    // Generate embedding for the query
+    const embedResponse = await cohere.embed({
+        model: "embed-v4.0",
+        texts: [rewrittenQuery],
+        inputType: "search_query",
+        embeddingTypes: ["float"]
+    });
+    const embedding = embedResponse.embeddings.float[0];
+
+    // Run similarity search to get relevant chunks
+    const { data: chunks } = await supabase.rpc("match_chunks", {
+        query_embedding: embedding,
+        match_repo_id: data.id,
+        match_branch: branch,
+        match_threshold: 0.1,
+        match_count: 20
+    })
+
+    // Chat call to get a response for a user query
+    const response = await cohere.chat({
+        model: "command-a-03-2025",
+        messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            ...chatHistory, // Added for context for the LLM
+            { role: "user", content: query }
+        ],
+        documents: chunks.map(c => ({
+            data: {
+                title: c.file_path,
+                snippet: c.chunk
+            }
+        }))
+    });
+
+    res.json({
+        status: "ready",
+        answer: response.message.content[0].text
+    })
 });
 
 // Start the server

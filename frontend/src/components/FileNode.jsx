@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DocumentIcon } from "@heroicons/react/24/outline";
-import { FolderIcon, ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import { FolderIcon } from "@heroicons/react/24/solid";
 
 export default function FileNode(props) {
     const [isOpen, setIsOpen] = useState(false);

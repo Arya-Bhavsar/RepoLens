@@ -30,16 +30,17 @@ export default function PasswordForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Re-authenticate user to check if current password is correct
         const { error: signInError } = await supabase.auth.signInWithPassword({
             email: currentUser.email,
             password: currentPass,
         });
-
         if (signInError) {
             console.error("Current password is incorrect");
             return;
         }
 
+        // Check if new password and confirm password match
         if (newPass !== confirmPass) {
             console.error("Passwords do not match");
             return;

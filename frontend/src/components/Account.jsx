@@ -19,7 +19,7 @@ export default function Account() {
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
                             Account
                         </h1>
-                        <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
+                        <p className="text-sm text-gray-500 dark:text-zinc-400">
                             Manage your personal information and security
                         </p>
                     </div>

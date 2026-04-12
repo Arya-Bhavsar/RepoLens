@@ -80,7 +80,7 @@ export default function UserProfilePopover() {
 
                     {/* Account Settings */}
                     <div className="p-1.5">
-                        <Link to="#" className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-colors cursor-pointer">
+                        <Link to="/account" className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-colors cursor-pointer">
                             <Cog6ToothIcon className="w-4 h-4 shrink-0 text-gray-400" />
                             Account Settings
                             <ChevronRightIcon className="ml-auto w-3.5 h-3.5 text-gray-300" />

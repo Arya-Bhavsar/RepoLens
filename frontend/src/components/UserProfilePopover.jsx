@@ -9,14 +9,21 @@ import {
     ArrowRightStartOnRectangleIcon,
     ExclamationTriangleIcon
 } from "@heroicons/react/24/solid";
+import { supabase } from "../supabase";
 
 export default function UserProfilePopover() {
-    const { currentUser, SetCurrentUser } = useContext(UserContext);
+    const { currentUser, setCurrentUser } = useContext(UserContext);
     const [open, setOpen] = useState(false);
     const [showSignOutModal, setShowSignOutModal] = useState(false);
 
     const initials = `${currentUser.first_name.charAt(0)}${currentUser.last_name.charAt(0)}`;
     const fullName = `${currentUser.first_name} ${currentUser.last_name}`;
+
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+        setCurrentUser(null);
+        setShowSignOutModal(false);
+    }
 
     return (
         <div className="relative">
@@ -114,9 +121,10 @@ export default function UserProfilePopover() {
                 >
                     <div
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-white dark:bg-zinc-800 rounded-xl shadow-lg p-6 w-full max-w-md"
+                        className="bg-white! dark:bg-zinc-800! rounded-xl shadow-lg p-6 w-full max-w-md"
                     >
                         {/* Header */}
+                        <ExclamationTriangleIcon className="w-6 h-6 mb-3 text-red-500" />
                         <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Signing Out</h2>
 
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
@@ -132,6 +140,7 @@ export default function UserProfilePopover() {
                                 Cancel
                             </button>
                             <button
+                                onClick={handleSignOut}
                                 className="px-4 py-2 rounded-lg text-gray-100 bg-red-600 dark:bg-red-500 hover:bg-red-700 dark:hover:bg-red-400 transition-colors cursor-pointer"
                             >
                                 Confirm

@@ -2,6 +2,8 @@ import { useContext } from "react";
 import { UserContext } from "../App";
 import Header from "./Header";
 import ProfileForm from "./ProfileForm";
+import PasswordForm from "./PasswordForm";
+import DeleteSection from "./DeleteSection";
 
 export default function Account() {
     const { currentUser, setCurrentUser } = useContext(UserContext);
@@ -11,7 +13,7 @@ export default function Account() {
             <Header />
 
             <div className="flex-1 overflow-auto">
-                <div className="flex flex-col min-w-0 p-8 gap-6 max-w-5xl w-full mx-auto">
+                <div className="flex flex-col min-w-0 p-8 gap-6 max-w-4xl w-full mx-auto">
                     {/* Page title */}
                     <div className="mb-4">
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
@@ -24,6 +26,8 @@ export default function Account() {
 
                     {/* Account settings content */}
                     <ProfileForm currentUser={currentUser} />
+                    <PasswordForm />
+                    <DeleteSection />
                 </div>
             </div>
         </div>

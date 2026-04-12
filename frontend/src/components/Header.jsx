@@ -1,12 +1,6 @@
-import ThemeToggle from "./ThemeToggle";
-import { useContext } from "react";
-import { UserContext } from "../App.jsx";
-import { Avatar } from '@heroui/react';
 import UserProfilePopover from "./UserProfilePopover.jsx";
 
 export default function Header() {
-    const { currentUser } = useContext(UserContext);
-
     return (
         <header className="flex justify-between items-center px-6 py-2 bg-gray-100 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700">
             {/* Left corner: Logo and App Name */}

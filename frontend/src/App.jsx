@@ -2,9 +2,16 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './components/Login.jsx'
 import Signup from './components/Signup.jsx'
 import Dashboard from './components/Dashboard.jsx'
-import { createContext, useState } from 'react'
+import Account from './components/Account.jsx'
+import { createContext, useState, useContext } from 'react'
 
 export const UserContext = createContext(null);
+
+function ProtectedRoute({ children}) {
+  const { currentUser } = useContext(UserContext);
+  if(!currentUser) return <Navigate to="/login" />;
+  return children;
+}
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -16,7 +23,22 @@ function App() {
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <Account />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </UserContext.Provider>

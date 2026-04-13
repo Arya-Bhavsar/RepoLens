@@ -50,6 +50,17 @@ app.get('/me', requireAuth, async (req, res) => {
     }
 });
 
+// Route to delete the user account
+app.delete('/me', requireAuth, async (req, res) => {
+    const userId = req.user.id;
+
+    const { error } = await supabase.auth.admin.deleteUser(userId);
+    
+    if (error) return res.status(500).json({ error: error.message });
+
+    res.json({ message: 'Account deleted successfully' });
+});
+
 // Route to get repositories from Supabase
 app.get('/repositories', requireAuth, async (req, res) => {
     const { data, error } = await supabase

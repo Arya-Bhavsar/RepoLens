@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { Input } from '@heroui/react';
 import { Fragment } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark, oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -110,15 +109,14 @@ export default function ChatWindow({ owner, repo, messages, currentBranch, addMe
 
             {/* Text Input */}
             <div className="flex flex-col mt-auto px-6 pb-6 w-full p-4 justify-center">
-                <Input
-                    aria-label='User Input'
+                <input
                     type='text'
                     placeholder='Ask anything'
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
                     disabled={!repo || loading}
-                    variant="secondary"
+                    className="w-full rounded-xl px-3.5 py-2.5 bg-gray-200 dark:bg-zinc-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <p className="text-xs text-center text-zinc-400 mt-1 px-1">Ask anything aboout the repository or any of its files and directories</p>
             </div>
